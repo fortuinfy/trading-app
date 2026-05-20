@@ -1,2 +1,2 @@
 # Strat-Scan
-Scan a stock for swing trading based on few strategies
+Scan a stock for swing trading based on Selected Strategies
