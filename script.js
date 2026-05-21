@@ -75,20 +75,14 @@ function analyzeStock() {
   let pcScore = 0;
   let rbScore = 0;
 
-  // CB Score
-
   if (ltp > ema20) cbScore += 25;
   if (ema20 > ema50) cbScore += 25;
   if (emaGap >= 0.5) cbScore += 25;
   if (rsi >= 55 && rsi <= 70) cbScore += 25;
 
-  // PC Score
-
   if (ema20 > ema50) pcScore += 30;
   if (Math.abs(distance) <= tolerance) pcScore += 40;
   if (rsi >= 50 && rsi <= 60) pcScore += 30;
-
-  // RB Score
 
   if (Math.abs(emaGap) <= 0.5) rbScore += 40;
   if (rsi >= 45 && rsi <= 55) rbScore += 30;
@@ -100,9 +94,9 @@ function analyzeStock() {
   let reason = "No valid setup";
   let tradeStatus = "Inactive";
 
-  // =================================
+  let exitPlanHTML = "";
+
   // NEW SCAN
-  // =================================
 
   if (mode === "new") {
 
@@ -163,9 +157,7 @@ function analyzeStock() {
 
   }
 
-  // =================================
   // WATCHLIST FOLLOW-UP
-  // =================================
 
   if (mode === "watchlist") {
 
@@ -187,8 +179,6 @@ function analyzeStock() {
       return;
     }
 
-    // EXECUTE TRADE
-
     if (
       ltp > prevEntryHigh &&
       ema20 > ema50 &&
@@ -202,8 +192,6 @@ function analyzeStock() {
       tradeStatus = "Execute Trade";
 
     }
-
-    // HOLD WATCHLIST
 
     else if (
       ema20 > ema50 &&
@@ -219,8 +207,6 @@ function analyzeStock() {
 
     }
 
-    // REMOVE WATCHLIST
-
     else {
 
       verdict = "AVOID";
@@ -233,11 +219,7 @@ function analyzeStock() {
 
   }
 
-  // =================================
   // ACTIVE TRADE FOLLOW-UP
-  // =================================
-
-  let exitPlanHTML = "";
 
   if (mode === "active") {
 
@@ -306,11 +288,6 @@ function analyzeStock() {
             <div class="result-item">
               <h4>Suggested Exit</h4>
               <p>Exit Full Position Immediately</p>
-            </div>
-
-            <div class="result-item">
-              <h4>Reason</h4>
-              <p>Structure Breakdown</p>
             </div>
 
           </div>
@@ -382,11 +359,6 @@ function analyzeStock() {
               <p>${revisedTarget}</p>
             </div>
 
-            <div class="result-item">
-              <h4>Trade Guidance</h4>
-              <p>Trail Remaining Quantity Risk-Free</p>
-            </div>
-
           </div>
 
         </div>
@@ -407,33 +379,9 @@ function analyzeStock() {
       reason = "Trail stop loss";
       tradeStatus = "Trail SL";
 
-      exitPlanHTML = `
-
-        <div class="trade-plan">
-
-          <h3>Trade Management</h3>
-
-          <div class="result-grid">
-
-            <div class="result-item">
-              <h4>Trail Stop Loss To</h4>
-              <p>${ema20.toFixed(2)}</p>
-            </div>
-
-            <div class="result-item">
-              <h4>Guidance</h4>
-              <p>Protect Profits & Hold Trend</p>
-            </div>
-
-          </div>
-
-        </div>
-
-      `;
-
     }
 
-    // HOLD TRADE
+    // HOLD
 
     else {
 
@@ -446,55 +394,6 @@ function analyzeStock() {
     }
 
   }
-
-  // =================================
-  // TRADE PLAN
-  // =================================
-
-  let entryLow;
-  let entryHigh;
-  let triggerLow = null;
-  let triggerHigh = null;
-
-  if (verdict === "BUY") {
-
-    entryLow = ltp;
-    entryHigh = ltp + (ltp * tolerance);
-
-  } else {
-
-    entryLow =
-      ema20 - (ema20 * tolerance);
-
-    entryHigh =
-      ema20 + (ema20 * tolerance);
-
-    triggerLow = entryHigh;
-
-    triggerHigh =
-      entryHigh +
-      (entryHigh * tolerance * 0.5);
-
-  }
-
-  let stopLoss = ema50;
-
-  if (stopLoss >= entryLow) {
-    stopLoss = entryLow - (entryLow * 0.02);
-  }
-
-  const risk =
-    entryLow - stopLoss;
-
-  const targetBase =
-    verdict === "WATCH"
-      ? triggerHigh
-      : entryHigh;
-
-  const target =
-    targetBase +
-    (2 * risk) +
-    (targetBase * chargesBuffer);
 
   let verdictClass = "avoid";
 
@@ -521,11 +420,6 @@ function analyzeStock() {
       <div class="result-item">
         <h4>Stock Name</h4>
         <p>${stockName}</p>
-      </div>
-
-      <div class="result-item">
-        <h4>Timeframe</h4>
-        <p>${timeframe}</p>
       </div>
 
       <div class="result-item">
@@ -572,98 +466,12 @@ function analyzeStock() {
 
     </div>
 
-    <div class="trade-plan">
-
-      <h3>Trade Plan</h3>
-
-      <div class="result-grid">
-
-        <div class="result-item">
-          <h4>Entry Range</h4>
-          <p>${entryLow.toFixed(2)} - ${entryHigh.toFixed(2)}</p>
-        </div>
-
-        ${
-          verdict === "WATCH"
-            ? `
-              <div class="result-item">
-                <h4>Trigger Zone</h4>
-                <p>${triggerLow.toFixed(2)} - ${triggerHigh.toFixed(2)}</p>
-              </div>
-            `
-            : ""
-        }
-
-        <div class="result-item">
-          <h4>Stop Loss</h4>
-          <p>${stopLoss.toFixed(2)}</p>
-        </div>
-
-        <div class="result-item">
-          <h4>Target</h4>
-          <p>${target.toFixed(2)}</p>
-        </div>
-
-      </div>
-
-    </div>
-
     ${exitPlanHTML}
 
   `;
 
-  // POSITION SIZE
-
-  if (verdict === "BUY" && mode !== "active") {
-
-    resultContent.innerHTML += `
-
-      <div class="position-box">
-
-        <h3>Position Size Calculator</h3>
-
-        <label>Capital</label>
-        <input type="number" id="capital">
-
-        <label>Risk %</label>
-        <input type="number" id="riskPercent" value="1">
-
-        <button class="calc-btn" onclick="calculatePosition(${entryLow}, ${stopLoss})">
-          Calculate Quantity
-        </button>
-
-        <div class="qty-result" id="qtyResult"></div>
-
-      </div>
-
-    `;
-
-  }
-
   document
     .getElementById("resultCard")
     .classList.remove("hidden");
-
-}
-
-function calculatePosition(entry, stopLoss) {
-
-  const capital =
-    parseFloat(document.getElementById("capital").value);
-
-  const riskPercent =
-    parseFloat(document.getElementById("riskPercent").value);
-
-  const riskPerShare =
-    entry - stopLoss;
-
-  const riskAmount =
-    capital * (riskPercent / 100);
-
-  const qty =
-    Math.floor(riskAmount / riskPerShare);
-
-  document.getElementById("qtyResult").innerHTML =
-    "Suggested Quantity: " + qty + " shares";
 
 }
