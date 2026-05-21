@@ -1,6 +1,7 @@
 function toggleModeFields() {
 
-  const mode = document.getElementById("mode").value;
+  const mode =
+    document.getElementById("mode").value;
 
   const watchlistFields =
     document.getElementById("watchlistFields");
@@ -72,20 +73,14 @@ function analyzeStock() {
   let pcScore = 0;
   let rbScore = 0;
 
-  // CB SCORE
-
   if (ltp > ema20) cbScore += 25;
   if (ema20 > ema50) cbScore += 25;
   if (emaGap >= 0.5) cbScore += 25;
   if (rsi >= 55 && rsi <= 70) cbScore += 25;
 
-  // PC SCORE
-
   if (ema20 > ema50) pcScore += 30;
   if (Math.abs(distance) <= tolerance) pcScore += 40;
   if (rsi >= 50 && rsi <= 60) pcScore += 30;
-
-  // RB SCORE
 
   if (Math.abs(emaGap) <= 0.5) rbScore += 40;
   if (rsi >= 45 && rsi <= 55) rbScore += 30;
@@ -94,16 +89,82 @@ function analyzeStock() {
   let setup = "None";
   let verdict = "AVOID";
   let priority = "Low";
-  let reason = "No valid setup";
-  let tradeStatus = "Inactive";
+  let reason = "Weak setup";
+  let actionText = "AVOID";
 
   let extraHTML = "";
 
+  // SETUP DETECTION
+
+  if (
+    ltp > ema20 &&
+    ema20 > ema50 &&
+    emaGap >= 0.5
+  ) {
+    setup = "CB";
+  }
+
+  else if (
+    ema20 > ema50 &&
+    Math.abs(distance) <= tolerance
+  ) {
+    setup = "PC";
+  }
+
+  else if (
+    Math.abs(emaGap) <= 0.5
+  ) {
+    setup = "RB";
+  }
+
   // =========================================
-  // NEW SCAN MODE
+  // NEW SCAN
   // =========================================
 
   if (mode === "new") {
+
+    // BUY
+
+    if (
+      cbScore >= 75 ||
+      pcScore >= 80 ||
+      rbScore >= 85
+    ) {
+
+      verdict = "BUY";
+      actionText = "BUY";
+      priority = "High";
+      reason = "Strong trade-ready setup";
+
+    }
+
+    // WATCH
+
+    else if (
+      cbScore >= 50 ||
+      pcScore >= 55 ||
+      rbScore >= 60
+    ) {
+
+      verdict = "WATCH";
+      actionText = "WATCH";
+      priority = "Medium";
+      reason = "Setup forming, monitor closely";
+
+    }
+
+    // AVOID
+
+    else {
+
+      verdict = "AVOID";
+      actionText = "AVOID";
+      priority = "Low";
+      reason = "Weak structure";
+
+    }
+
+    // OVEREXTENDED
 
     if (
       (timeframe === "Daily" && distance > 0.05) ||
@@ -111,283 +172,103 @@ function analyzeStock() {
     ) {
 
       verdict = "AVOID";
-      reason = "Overextended";
-      tradeStatus = "Avoid Trade";
-
-    }
-
-    else if (
-      ltp > ema20 &&
-      ema20 > ema50 &&
-      emaGap >= 0.5 &&
-      rsi > 55
-    ) {
-
-      setup = "CB";
-      verdict = "BUY";
-      priority = "High";
-      reason = "Strong continuation breakout";
-      tradeStatus = "Fresh Setup";
-
-    }
-
-    else if (
-      ema20 > ema50 &&
-      Math.abs(distance) <= tolerance &&
-      rsi >= 50 &&
-      rsi <= 55
-    ) {
-
-      setup = "PC";
-      verdict = "WATCH";
-      priority = "Medium";
-      reason = "Healthy pullback continuation";
-      tradeStatus = "Awaiting Trigger";
-
-    }
-
-    else if (
-      Math.abs(emaGap) <= 0.5 &&
-      rsi >= 45 &&
-      rsi <= 55
-    ) {
-
-      setup = "RB";
-      verdict = "WATCH";
-      priority = "Medium";
-      reason = "Potential range breakout";
-      tradeStatus = "Range Building";
-
-    }
-
-    let entryLow;
-    let entryHigh;
-    let triggerLow = null;
-    let triggerHigh = null;
-
-    if (verdict === "BUY") {
-
-      entryLow = ltp;
-      entryHigh = ltp + (ltp * tolerance);
-
-    }
-
-    else {
-
-      entryLow =
-        ema20 - (ema20 * tolerance);
-
-      entryHigh =
-        ema20 + (ema20 * tolerance);
-
-      triggerLow = entryHigh;
-
-      triggerHigh =
-        entryHigh +
-        (entryHigh * tolerance * 0.5);
-
-    }
-
-    let stopLoss = ema50;
-
-    if (stopLoss >= entryLow) {
-      stopLoss = entryLow - (entryLow * 0.02);
-    }
-
-    const risk =
-      entryLow - stopLoss;
-
-    const target =
-      entryHigh + (2 * risk);
-
-    extraHTML = `
-
-      <div class="trade-plan">
-
-        <h3>Trade Plan</h3>
-
-        <div class="result-grid">
-
-          <div class="result-item">
-            <h4>Entry Range</h4>
-            <p>${entryLow.toFixed(2)} - ${entryHigh.toFixed(2)}</p>
-          </div>
-
-          ${
-            verdict === "WATCH"
-              ? `
-                <div class="result-item">
-                  <h4>Trigger Zone</h4>
-                  <p>${triggerLow.toFixed(2)} - ${triggerHigh.toFixed(2)}</p>
-                </div>
-              `
-              : ""
-          }
-
-          <div class="result-item">
-            <h4>Stop Loss</h4>
-            <p>${stopLoss.toFixed(2)}</p>
-          </div>
-
-          <div class="result-item">
-            <h4>Target</h4>
-            <p>${target.toFixed(2)}</p>
-          </div>
-
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-  // =========================================
-  // WATCHLIST FOLLOW-UP
-  // =========================================
-
-  if (mode === "watchlist") {
-
-    const prevEntryHigh =
-      parseFloat(
-        document.getElementById("prevEntryHigh").value
-      );
-
-    const prevSL =
-      parseFloat(
-        document.getElementById("prevSL").value
-      );
-
-    if (
-      isNaN(prevEntryHigh) ||
-      isNaN(prevSL)
-    ) {
-      alert("Fill Watchlist fields");
-      return;
-    }
-
-    // EXECUTE TRADE
-
-    if (
-      ltp > prevEntryHigh &&
-      ema20 > ema50 &&
-      rsi > 55
-    ) {
-
-      verdict = "BUY";
-      priority = "High";
-      setup = "Watchlist Triggered";
-      reason = "Trigger breakout confirmed";
-      tradeStatus = "Execute Trade";
-
-    }
-
-    // HOLD WATCHLIST
-
-    else if (
-      ema20 > ema50 &&
-      ltp > ema20 &&
-      rsi >= 50
-    ) {
-
-      verdict = "WATCH";
-      priority = "Medium";
-      setup = "Watchlist Active";
-      reason = "Setup still valid";
-      tradeStatus = "Hold Watchlist";
-
-    }
-
-    // REMOVE WATCHLIST
-
-    else {
-
-      verdict = "AVOID";
+      actionText = "AVOID";
       priority = "Low";
-      setup = "Watchlist Failed";
-      reason = "Momentum weakened";
-      tradeStatus = "Remove from Watchlist";
+      reason = "Overextended";
 
     }
 
-  }
-
-  // =========================================
-  // ACTIVE TRADE FOLLOW-UP
-  // =========================================
-
-  if (mode === "active") {
-
-    const executedEntry =
-      parseFloat(
-        document.getElementById("executedEntry").value
-      );
-
-    const currentTarget =
-      parseFloat(
-        document.getElementById("currentTarget").value
-      );
-
-    const currentSL =
-      parseFloat(
-        document.getElementById("currentSL").value
-      );
-
-    const stockQty =
-      parseFloat(
-        document.getElementById("stockQty").value
-      );
+    // TRADE PLAN ONLY FOR BUY / WATCH
 
     if (
-      isNaN(executedEntry) ||
-      isNaN(currentTarget) ||
-      isNaN(currentSL) ||
-      isNaN(stockQty)
-    ) {
-      alert("Fill Active Trade fields");
-      return;
-    }
-
-    const profitDistance =
-      ltp - executedEntry;
-
-    const initialRisk =
-      executedEntry - currentSL;
-
-    // FULL EXIT
-
-    if (
-      ltp < ema20 ||
-      rsi < 45
+      verdict === "BUY" ||
+      verdict === "WATCH"
     ) {
 
-      verdict = "AVOID";
-      priority = "High";
-      setup = "Trade Breakdown";
-      reason = "Structure weakened";
-      tradeStatus = "Full Exit";
+      let entryLow;
+      let entryHigh;
+      let stopLoss;
+      let target;
+      let triggerLow;
+      let triggerHigh;
+
+      if (verdict === "BUY") {
+
+        entryLow = ltp;
+        entryHigh =
+          ltp + (ltp * tolerance);
+
+      }
+
+      else {
+
+        entryLow =
+          ema20 - (ema20 * tolerance);
+
+        entryHigh =
+          ema20 + (ema20 * tolerance);
+
+        triggerLow = entryHigh;
+
+        triggerHigh =
+          entryHigh +
+          (entryHigh * tolerance);
+
+      }
+
+      stopLoss = ema50;
+
+      if (stopLoss >= entryLow) {
+        stopLoss =
+          entryLow - (entryLow * 0.02);
+      }
+
+      const risk =
+        entryLow - stopLoss;
+
+      target =
+        entryHigh + (2 * risk);
 
       extraHTML = `
 
         <div class="trade-plan">
 
-          <h3>Exit Trade Plan</h3>
+          <h3>Trade Plan</h3>
 
           <div class="result-grid">
 
             <div class="result-item">
-              <h4>Exit Quantity</h4>
-              <p>${stockQty} Shares</p>
+              <h4>Entry Range</h4>
+              <p>
+                ${entryLow.toFixed(2)}
+                -
+                ${entryHigh.toFixed(2)}
+              </p>
+            </div>
+
+            ${
+              verdict === "WATCH"
+                ? `
+                  <div class="result-item">
+                    <h4>Trigger Zone</h4>
+                    <p>
+                      ${triggerLow.toFixed(2)}
+                      -
+                      ${triggerHigh.toFixed(2)}
+                    </p>
+                  </div>
+                `
+                : ""
+            }
+
+            <div class="result-item">
+              <h4>Stop Loss</h4>
+              <p>${stopLoss.toFixed(2)}</p>
             </div>
 
             <div class="result-item">
-              <h4>Exit Action</h4>
-              <p>Exit Entire Position</p>
-            </div>
-
-            <div class="result-item">
-              <h4>Suggested Exit Price</h4>
-              <p>${ltp.toFixed(2)}</p>
+              <h4>Target</h4>
+              <p>${target.toFixed(2)}</p>
             </div>
 
           </div>
@@ -395,111 +276,6 @@ function analyzeStock() {
         </div>
 
       `;
-
-    }
-
-    // PARTIAL EXIT
-
-    else if (
-      ltp >= currentTarget * 0.95 ||
-      rsi > 75
-    ) {
-
-      verdict = "WATCH";
-      priority = "Medium";
-      setup = "Target Near";
-      reason = "Book partial profits";
-      tradeStatus = "Partial Exit";
-
-      const partialQty =
-        Math.floor(stockQty * 0.5);
-
-      const remainingQty =
-        stockQty - partialQty;
-
-      extraHTML = `
-
-        <div class="trade-plan">
-
-          <h3>Partial Exit Plan</h3>
-
-          <div class="result-grid">
-
-            <div class="result-item">
-              <h4>Exit Quantity</h4>
-              <p>${partialQty} Shares</p>
-            </div>
-
-            <div class="result-item">
-              <h4>Remaining Quantity</h4>
-              <p>${remainingQty} Shares</p>
-            </div>
-
-            <div class="result-item">
-              <h4>Suggested Exit Price</h4>
-              <p>${ltp.toFixed(2)}</p>
-            </div>
-
-            <div class="result-item">
-              <h4>Trail SL To</h4>
-              <p>${ema20.toFixed(2)}</p>
-            </div>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }
-
-    // TRAIL SL
-
-    else if (
-      profitDistance >= initialRisk
-    ) {
-
-      verdict = "BUY";
-      priority = "High";
-      setup = "Trade in Profit";
-      reason = "Protect profits";
-      tradeStatus = "Trail SL";
-
-      extraHTML = `
-
-        <div class="trade-plan">
-
-          <h3>Trade Management</h3>
-
-          <div class="result-grid">
-
-            <div class="result-item">
-              <h4>Trail Stop Loss To</h4>
-              <p>${ema20.toFixed(2)}</p>
-            </div>
-
-            <div class="result-item">
-              <h4>Guidance</h4>
-              <p>Hold Trend & Protect Profits</p>
-            </div>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }
-
-    // HOLD
-
-    else {
-
-      verdict = "BUY";
-      priority = "Medium";
-      setup = "Trade Active";
-      reason = "Trend intact";
-      tradeStatus = "Hold Trade";
 
     }
 
@@ -523,11 +299,6 @@ function analyzeStock() {
     <div class="result-grid">
 
       <div class="result-item">
-        <h4>Mode</h4>
-        <p>${mode}</p>
-      </div>
-
-      <div class="result-item">
         <h4>Stock Name</h4>
         <p>${stockName}</p>
       </div>
@@ -543,9 +314,9 @@ function analyzeStock() {
       </div>
 
       <div class="result-item">
-        <h4>Action</h4>
+        <h4>Verdict</h4>
         <p class="${verdictClass}">
-          ${tradeStatus}
+          ${verdict}
         </p>
       </div>
 
