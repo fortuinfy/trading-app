@@ -1,4 +1,26 @@
+function toggleModeFields() {
+
+  const mode = document.getElementById("mode").value;
+
+  const watchlistFields = document.getElementById("watchlistFields");
+  const activeFields = document.getElementById("activeFields");
+
+  watchlistFields.classList.add("hidden");
+  activeFields.classList.add("hidden");
+
+  if (mode === "watchlist") {
+    watchlistFields.classList.remove("hidden");
+  }
+
+  if (mode === "active") {
+    activeFields.classList.remove("hidden");
+  }
+
+}
+
 function analyzeStock() {
+
+  const mode = document.getElementById("mode").value;
 
   const stockName = document.getElementById("stockName").value;
   const timeframe = document.getElementById("timeframe").value;
@@ -15,7 +37,7 @@ function analyzeStock() {
     isNaN(ema50) ||
     isNaN(rsi)
   ) {
-    alert("Please fill all fields");
+    alert("Please fill all required fields");
     return;
   }
 
@@ -30,17 +52,20 @@ function analyzeStock() {
   let rbScore = 0;
 
   // CB Score
+
   if (ltp > ema20) cbScore += 25;
   if (ema20 > ema50) cbScore += 25;
   if (emaGap >= 0.5) cbScore += 25;
   if (rsi >= 55 && rsi <= 70) cbScore += 25;
 
   // PC Score
+
   if (ema20 > ema50) pcScore += 30;
   if (Math.abs(distance) <= tolerance) pcScore += 40;
   if (rsi >= 50 && rsi <= 60) pcScore += 30;
 
   // RB Score
+
   if (Math.abs(emaGap) <= 0.5) rbScore += 40;
   if (rsi >= 45 && rsi <= 55) rbScore += 30;
   if (Math.abs(distance) <= tolerance) rbScore += 30;
@@ -49,63 +74,222 @@ function analyzeStock() {
   let verdict = "AVOID";
   let priority = "Low";
   let reason = "No valid setup";
+  let tradeStatus = "Inactive";
 
-  // Extension Rule
-  if (
-    (timeframe === "Daily" && distance > 0.05) ||
-    (timeframe === "15 Min" && distance > 0.01)
-  ) {
+  // =====================================
+  // NEW SCAN MODE
+  // =====================================
 
-    verdict = "AVOID";
-    reason = "Overextended";
+  if (mode === "new") {
 
-  } else {
-
-    // CB
     if (
-      ltp > ema20 &&
-      ema20 > ema50 &&
-      emaGap >= 0.5 &&
-      rsi > 55
+      (timeframe === "Daily" && distance > 0.05) ||
+      (timeframe === "15 Min" && distance > 0.01)
     ) {
 
-      setup = "CB";
-      verdict = "BUY";
-      priority = "High";
-      reason = "Strong continuation breakout setup";
+      verdict = "AVOID";
+      reason = "Overextended";
+      tradeStatus = "Avoid Trade";
 
-    }
+    } else {
 
-    // PC
-    else if (
-      ema20 > ema50 &&
-      Math.abs(distance) <= tolerance &&
-      rsi >= 50 &&
-      rsi <= 55
-    ) {
+      // CB
 
-      setup = "PC";
-      verdict = "WATCH";
-      priority = "Medium";
-      reason = "Healthy pullback continuation";
+      if (
+        ltp > ema20 &&
+        ema20 > ema50 &&
+        emaGap >= 0.5 &&
+        rsi > 55
+      ) {
 
-    }
+        setup = "CB";
+        verdict = "BUY";
+        priority = "High";
+        reason = "Strong continuation breakout setup";
+        tradeStatus = "Fresh Setup";
 
-    // RB
-    else if (
-      Math.abs(emaGap) <= 0.5 &&
-      rsi >= 45 &&
-      rsi <= 55
-    ) {
+      }
 
-      setup = "RB";
-      verdict = "WATCH";
-      priority = "Medium";
-      reason = "Potential range breakout setup";
+      // PC
+
+      else if (
+        ema20 > ema50 &&
+        Math.abs(distance) <= tolerance &&
+        rsi >= 50 &&
+        rsi <= 55
+      ) {
+
+        setup = "PC";
+        verdict = "WATCH";
+        priority = "Medium";
+        reason = "Healthy pullback continuation";
+        tradeStatus = "Awaiting Trigger";
+
+      }
+
+      // RB
+
+      else if (
+        Math.abs(emaGap) <= 0.5 &&
+        rsi >= 45 &&
+        rsi <= 55
+      ) {
+
+        setup = "RB";
+        verdict = "WATCH";
+        priority = "Medium";
+        reason = "Potential range breakout setup";
+        tradeStatus = "Range Building";
+
+      }
 
     }
 
   }
+
+  // =====================================
+  // WATCHLIST FOLLOW-UP
+  // =====================================
+
+  if (mode === "watchlist") {
+
+    const prevEntryHigh = parseFloat(document.getElementById("prevEntryHigh").value);
+    const prevSL = parseFloat(document.getElementById("prevSL").value);
+
+    if (isNaN(prevEntryHigh) || isNaN(prevSL)) {
+      alert("Fill Watchlist Follow-Up fields");
+      return;
+    }
+
+    // BUY NOW
+
+    if (
+      ltp > prevEntryHigh &&
+      ema20 > ema50 &&
+      rsi > 55
+    ) {
+
+      verdict = "BUY";
+      priority = "High";
+      setup = "Watchlist Triggered";
+      reason = "Trigger breakout confirmed";
+      tradeStatus = "Execute Trade";
+
+    }
+
+    // KEEP WATCHLIST
+
+    else if (
+      ema20 > ema50 &&
+      ltp > ema20 &&
+      rsi >= 50
+    ) {
+
+      verdict = "WATCH";
+      priority = "Medium";
+      setup = "Watchlist Active";
+      reason = "Setup still valid";
+      tradeStatus = "Hold Watchlist";
+
+    }
+
+    // REMOVE WATCHLIST
+
+    else {
+
+      verdict = "AVOID";
+      priority = "Low";
+      setup = "Watchlist Failed";
+      reason = "Momentum or structure weakened";
+      tradeStatus = "Remove from Watchlist";
+
+    }
+
+  }
+
+  // =====================================
+  // ACTIVE TRADE FOLLOW-UP
+  // =====================================
+
+  if (mode === "active") {
+
+    const executedEntry = parseFloat(document.getElementById("executedEntry").value);
+    const currentTarget = parseFloat(document.getElementById("currentTarget").value);
+    const currentSL = parseFloat(document.getElementById("currentSL").value);
+
+    if (
+      isNaN(executedEntry) ||
+      isNaN(currentTarget) ||
+      isNaN(currentSL)
+    ) {
+      alert("Fill Active Trade fields");
+      return;
+    }
+
+    const profitDistance = ltp - executedEntry;
+    const initialRisk = executedEntry - currentSL;
+
+    // EXIT FULL
+
+    if (
+      ltp < ema20 ||
+      rsi < 45
+    ) {
+
+      verdict = "AVOID";
+      priority = "High";
+      setup = "Trade Breakdown";
+      reason = "Trend weakening or structure broken";
+      tradeStatus = "Exit Trade";
+
+    }
+
+    // PARTIAL EXIT
+
+    else if (
+      ltp >= currentTarget * 0.95 ||
+      rsi > 75
+    ) {
+
+      verdict = "WATCH";
+      priority = "Medium";
+      setup = "Target Near";
+      reason = "Book partial profits";
+      tradeStatus = "Partial Profit Zone";
+
+    }
+
+    // TRAIL SL
+
+    else if (
+      profitDistance >= initialRisk
+    ) {
+
+      verdict = "BUY";
+      priority = "High";
+      setup = "Trade in Profit";
+      reason = "Trail stop loss higher";
+      tradeStatus = "Trail SL";
+
+    }
+
+    // HOLD
+
+    else {
+
+      verdict = "BUY";
+      priority = "Medium";
+      setup = "Trade Active";
+      reason = "Trend intact";
+      tradeStatus = "Hold Trade";
+
+    }
+
+  }
+
+  // =====================================
+  // TRADE PLAN
+  // =====================================
 
   let entryLow;
   let entryHigh;
@@ -162,6 +346,11 @@ function analyzeStock() {
     <div class="result-grid">
 
       <div class="result-item">
+        <h4>Mode</h4>
+        <p>${mode}</p>
+      </div>
+
+      <div class="result-item">
         <h4>Stock Name</h4>
         <p>${stockName}</p>
       </div>
@@ -189,6 +378,11 @@ function analyzeStock() {
       <div class="result-item">
         <h4>Reason</h4>
         <p>${reason}</p>
+      </div>
+
+      <div class="result-item">
+        <h4>Trade Status</h4>
+        <p>${tradeStatus}</p>
       </div>
 
       <div class="result-item">
@@ -244,6 +438,8 @@ function analyzeStock() {
 
     </div>
   `;
+
+  // POSITION SIZE
 
   if (verdict === "BUY") {
 
