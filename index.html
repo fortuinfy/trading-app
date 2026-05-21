@@ -6,6 +6,7 @@
   <title>StratScan AI</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <header class="header">
@@ -16,9 +17,19 @@
   <main class="container">
 
     <div class="card">
+
       <h2>Stock Inputs</h2>
 
       <div class="grid">
+
+        <div class="input-group">
+          <label>Mode</label>
+          <select id="mode" onchange="toggleModeFields()">
+            <option value="new">New Scan</option>
+            <option value="watchlist">Watchlist Follow-Up</option>
+            <option value="active">Active Trade Follow-Up</option>
+          </select>
+        </div>
 
         <div class="input-group">
           <label>Stock Name</label>
@@ -55,19 +66,72 @@
 
       </div>
 
+      <!-- WATCHLIST FOLLOW-UP -->
+
+      <div id="watchlistFields" class="hidden" style="margin-top:25px;">
+
+        <h2>Watchlist Follow-Up</h2>
+
+        <div class="grid">
+
+          <div class="input-group">
+            <label>Previous Entry High</label>
+            <input type="number" id="prevEntryHigh">
+          </div>
+
+          <div class="input-group">
+            <label>Previous Stop Loss</label>
+            <input type="number" id="prevSL">
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ACTIVE TRADE FOLLOW-UP -->
+
+      <div id="activeFields" class="hidden" style="margin-top:25px;">
+
+        <h2>Active Trade Follow-Up</h2>
+
+        <div class="grid">
+
+          <div class="input-group">
+            <label>Executed Entry</label>
+            <input type="number" id="executedEntry">
+          </div>
+
+          <div class="input-group">
+            <label>Current Target</label>
+            <input type="number" id="currentTarget">
+          </div>
+
+          <div class="input-group">
+            <label>Current Stop Loss</label>
+            <input type="number" id="currentSL">
+          </div>
+
+        </div>
+
+      </div>
+
       <button class="analyze-btn" onclick="analyzeStock()">
         Analyze
       </button>
+
     </div>
 
     <div id="resultCard" class="card hidden">
+
       <h2>Analysis Result</h2>
 
       <div id="resultContent"></div>
+
     </div>
 
   </main>
 
   <script src="script.js"></script>
+
 </body>
 </html>
