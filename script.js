@@ -63,32 +63,45 @@ function analyzeStock() {
   const tolerance =
     timeframe === "Daily" ? 0.02 : 0.005;
 
+  const chargesBuffer =
+    timeframe === "Daily" ? 0.005 : 0.003;
+
   const distance =
     (ltp - ema20) / ema20;
 
   const emaGap =
     ((ema20 - ema50) / ema50) * 100;
 
+  // =========================================
+  // SCORES
+  // =========================================
+
   let cbScore = 0;
   let pcScore = 0;
   let rbScore = 0;
 
-  // SCORING
+  // CB
 
   if (ltp > ema20) cbScore += 25;
   if (ema20 > ema50) cbScore += 25;
   if (emaGap >= 0.5) cbScore += 25;
   if (rsi >= 55 && rsi <= 70) cbScore += 25;
 
+  // PC
+
   if (ema20 > ema50) pcScore += 30;
   if (Math.abs(distance) <= tolerance) pcScore += 40;
   if (rsi >= 50 && rsi <= 60) pcScore += 30;
+
+  // RB
 
   if (Math.abs(emaGap) <= 0.5) rbScore += 40;
   if (rsi >= 45 && rsi <= 55) rbScore += 30;
   if (Math.abs(distance) <= tolerance) rbScore += 30;
 
+  // =========================================
   // SETUP DETECTION
+  // =========================================
 
   let setup = "None";
 
@@ -97,27 +110,37 @@ function analyzeStock() {
     ema20 > ema50 &&
     emaGap >= 0.5
   ) {
+
     setup = "CB";
+
   }
 
   else if (
     ema20 > ema50 &&
     Math.abs(distance) <= tolerance
   ) {
+
     setup = "PC";
+
   }
 
   else if (
     Math.abs(emaGap) <= 0.5
   ) {
+
     setup = "RB";
+
   }
 
+  // =========================================
   // VERDICT ENGINE
+  // =========================================
 
   let verdict = "AVOID";
   let priority = "Low";
   let reason = "Weak structure";
+
+  // BUY
 
   if (
     cbScore >= 75 ||
@@ -131,6 +154,8 @@ function analyzeStock() {
 
   }
 
+  // WATCH
+
   else if (
     cbScore >= 50 ||
     pcScore >= 55 ||
@@ -143,6 +168,8 @@ function analyzeStock() {
 
   }
 
+  // OVEREXTENDED
+
   if (
     (timeframe === "Daily" && distance > 0.05) ||
     (timeframe === "15 Min" && distance > 0.01)
@@ -154,7 +181,9 @@ function analyzeStock() {
 
   }
 
-  // COLOR
+  // =========================================
+  // RESULT COLORS
+  // =========================================
 
   let verdictClass = "avoid";
 
@@ -166,7 +195,9 @@ function analyzeStock() {
     verdictClass = "watch";
   }
 
+  // =========================================
   // TRADE PLAN
+  // =========================================
 
   let tradePlanHTML = "";
 
@@ -180,13 +211,18 @@ function analyzeStock() {
     verdict === "WATCH"
   ) {
 
+    // BUY ENTRY
+
     if (verdict === "BUY") {
 
       entryLow = ltp;
+
       entryHigh =
         ltp + (ltp * tolerance);
 
     }
+
+    // WATCH ENTRY
 
     else {
 
@@ -198,18 +234,28 @@ function analyzeStock() {
 
     }
 
+    // STOP LOSS
+
     stopLoss = ema50;
 
     if (stopLoss >= entryLow) {
+
       stopLoss =
         entryLow - (entryLow * 0.02);
+
     }
+
+    // RISK
 
     const risk =
       entryLow - stopLoss;
 
+    // TARGET
+
     target =
-      entryHigh + (2 * risk);
+      entryHigh +
+      (2 * risk) +
+      (entryHigh * chargesBuffer);
 
     tradePlanHTML = `
 
@@ -228,6 +274,21 @@ function analyzeStock() {
             </p>
           </div>
 
+          ${
+            verdict === "WATCH"
+            ? `
+              <div class="result-item">
+                <h4>Trigger Zone</h4>
+                <p>
+                  ${entryHigh.toFixed(2)}
+                  -
+                  ${(entryHigh + (entryHigh * tolerance * 0.5)).toFixed(2)}
+                </p>
+              </div>
+            `
+            : ""
+          }
+
           <div class="result-item">
             <h4>Stop Loss</h4>
             <p>${stopLoss.toFixed(2)}</p>
@@ -243,9 +304,12 @@ function analyzeStock() {
       </div>
 
     `;
+
   }
 
-  // RESULT
+  // =========================================
+  // RESULT SECTION
+  // =========================================
 
   const resultContent =
     document.getElementById("resultContent");
@@ -307,9 +371,13 @@ function analyzeStock() {
 
   `;
 
+  // =========================================
   // POSITION SIZE
+  // =========================================
 
-  if (verdict === "BUY") {
+  if (
+    verdict === "BUY"
+  ) {
 
     resultContent.innerHTML += `
 
@@ -321,17 +389,28 @@ function analyzeStock() {
         <input type="number" id="capital">
 
         <label>Risk %</label>
-        <input type="number" id="riskPercent" value="1">
+        <input
+          type="number"
+          id="riskPercent"
+          value="1"
+        >
 
-        <button class="calc-btn" onclick="calculatePosition(${entryLow}, ${stopLoss})">
+        <button
+          class="calc-btn"
+          onclick="calculatePosition(${entryLow}, ${stopLoss})"
+        >
           Calculate Quantity
         </button>
 
-        <div class="qty-result" id="qtyResult"></div>
+        <div
+          class="qty-result"
+          id="qtyResult"
+        ></div>
 
       </div>
 
     `;
+
   }
 
   document
@@ -339,6 +418,10 @@ function analyzeStock() {
     .classList.remove("hidden");
 
 }
+
+// =========================================
+// POSITION SIZE CALCULATOR
+// =========================================
 
 function calculatePosition(entry, stopLoss) {
 
@@ -356,20 +439,32 @@ function calculatePosition(entry, stopLoss) {
     isNaN(capital) ||
     isNaN(riskPercent)
   ) {
+
     alert("Fill Capital & Risk %");
     return;
+
   }
+
+  // TOTAL RISK ALLOWED
 
   const riskAmount =
     capital * (riskPercent / 100);
 
+  // RISK PER SHARE
+
   const riskPerShare =
     entry - stopLoss;
 
-  const qty =
+  // QUANTITY
+
+  const quantity =
     Math.floor(riskAmount / riskPerShare);
 
-  if (qty < 1) {
+  // RESULT
+
+  if (
+    quantity < 1
+  ) {
 
     document.getElementById("qtyResult").innerHTML =
       "Capital insufficient for defined risk management.";
@@ -380,7 +475,7 @@ function calculatePosition(entry, stopLoss) {
 
     document.getElementById("qtyResult").innerHTML =
       "Suggested Quantity: " +
-      qty +
+      quantity +
       " shares";
 
   }
