@@ -63,7 +63,7 @@ function analyzeStock() {
   }
 
   // =====================================
-  // CORE CALCULATIONS
+  // CALCULATIONS
   // =====================================
 
   const tolerance =
@@ -92,10 +92,6 @@ function analyzeStock() {
   const emaCompressed =
     emaGap <= 0.5;
 
-  const strongTrend =
-    ema20 > ema50 &&
-    emaGap >= 0.5;
-
   // =====================================
   // SCORES
   // =====================================
@@ -104,7 +100,7 @@ function analyzeStock() {
   let pcScore = 0;
   let rbScore = 0;
 
-  // CB SCORE
+  // CB
 
   if (ltp > ema20)
     cbScore += 25;
@@ -118,7 +114,7 @@ function analyzeStock() {
   if (rsi >= 55 && rsi <= 70)
     cbScore += 25;
 
-  // PC SCORE
+  // PC
 
   if (ema20 > ema50)
     pcScore += 30;
@@ -129,7 +125,7 @@ function analyzeStock() {
   if (rsi >= 50 && rsi <= 60)
     pcScore += 30;
 
-  // RB SCORE
+  // RB
 
   if (emaCompressed)
     rbScore += 40;
@@ -141,13 +137,11 @@ function analyzeStock() {
     rbScore += 30;
 
   // =====================================
-  // FINAL SETUP ENGINE
+  // SETUP ENGINE
   // =====================================
 
   let setup = "None";
   let setupScore = 0;
-
-  // RB PRIORITY
 
   if (
     emaCompressed &&
@@ -160,8 +154,6 @@ function analyzeStock() {
 
   }
 
-  // PC PRIORITY
-
   else if (
     nearEMA20 &&
     ema20 > ema50
@@ -171,8 +163,6 @@ function analyzeStock() {
     setupScore = pcScore;
 
   }
-
-  // CB PRIORITY
 
   else if (
     ltp > ema20 &&
@@ -209,7 +199,7 @@ function analyzeStock() {
 
   }
 
-  // CB VERDICT
+  // CB
 
   else if (setup === "CB") {
 
@@ -238,7 +228,7 @@ function analyzeStock() {
 
   }
 
-  // PC VERDICT
+  // PC
 
   else if (setup === "PC") {
 
@@ -268,7 +258,7 @@ function analyzeStock() {
 
   }
 
-  // RB VERDICT
+  // RB
 
   else if (setup === "RB") {
 
@@ -303,13 +293,11 @@ function analyzeStock() {
 
   let verdictClass = "avoid";
 
-  if (verdict === "BUY") {
+  if (verdict === "BUY")
     verdictClass = "buy";
-  }
 
-  if (verdict === "WATCH") {
+  if (verdict === "WATCH")
     verdictClass = "watch";
-  }
 
   // =====================================
   // TRADE PLAN
@@ -327,8 +315,6 @@ function analyzeStock() {
     verdict === "WATCH"
   ) {
 
-    // BUY
-
     if (verdict === "BUY") {
 
       entryLow = ltp;
@@ -337,8 +323,6 @@ function analyzeStock() {
         ltp + (ltp * tolerance);
 
     }
-
-    // WATCH
 
     else {
 
@@ -352,8 +336,6 @@ function analyzeStock() {
 
     }
 
-    // STOP LOSS
-
     stopLoss = ema50;
 
     if (
@@ -365,8 +347,6 @@ function analyzeStock() {
         (entryLow * 0.02);
 
     }
-
-    // TARGET
 
     const risk =
       entryLow - stopLoss;
@@ -431,7 +411,7 @@ function analyzeStock() {
   }
 
   // =====================================
-  // RESULT SECTION
+  // RESULT HTML
   // =====================================
 
   const resultContent =
