@@ -73,6 +73,8 @@ function analyzeStock() {
   let pcScore = 0;
   let rbScore = 0;
 
+  // SCORING
+
   if (ltp > ema20) cbScore += 25;
   if (ema20 > ema50) cbScore += 25;
   if (emaGap >= 0.5) cbScore += 25;
@@ -86,15 +88,9 @@ function analyzeStock() {
   if (rsi >= 45 && rsi <= 55) rbScore += 30;
   if (Math.abs(distance) <= tolerance) rbScore += 30;
 
-  let setup = "None";
-  let verdict = "AVOID";
-  let priority = "Low";
-  let reason = "Weak setup";
-  let actionText = "AVOID";
-
-  let extraHTML = "";
-
   // SETUP DETECTION
+
+  let setup = "None";
 
   if (
     ltp > ema20 &&
@@ -117,169 +113,48 @@ function analyzeStock() {
     setup = "RB";
   }
 
-  // =========================================
-  // NEW SCAN
-  // =========================================
+  // VERDICT ENGINE
 
-  if (mode === "new") {
+  let verdict = "AVOID";
+  let priority = "Low";
+  let reason = "Weak structure";
 
-    // BUY
+  if (
+    cbScore >= 75 ||
+    pcScore >= 80 ||
+    rbScore >= 85
+  ) {
 
-    if (
-      cbScore >= 75 ||
-      pcScore >= 80 ||
-      rbScore >= 85
-    ) {
-
-      verdict = "BUY";
-      actionText = "BUY";
-      priority = "High";
-      reason = "Strong trade-ready setup";
-
-    }
-
-    // WATCH
-
-    else if (
-      cbScore >= 50 ||
-      pcScore >= 55 ||
-      rbScore >= 60
-    ) {
-
-      verdict = "WATCH";
-      actionText = "WATCH";
-      priority = "Medium";
-      reason = "Setup forming, monitor closely";
-
-    }
-
-    // AVOID
-
-    else {
-
-      verdict = "AVOID";
-      actionText = "AVOID";
-      priority = "Low";
-      reason = "Weak structure";
-
-    }
-
-    // OVEREXTENDED
-
-    if (
-      (timeframe === "Daily" && distance > 0.05) ||
-      (timeframe === "15 Min" && distance > 0.01)
-    ) {
-
-      verdict = "AVOID";
-      actionText = "AVOID";
-      priority = "Low";
-      reason = "Overextended";
-
-    }
-
-    // TRADE PLAN ONLY FOR BUY / WATCH
-
-    if (
-      verdict === "BUY" ||
-      verdict === "WATCH"
-    ) {
-
-      let entryLow;
-      let entryHigh;
-      let stopLoss;
-      let target;
-      let triggerLow;
-      let triggerHigh;
-
-      if (verdict === "BUY") {
-
-        entryLow = ltp;
-        entryHigh =
-          ltp + (ltp * tolerance);
-
-      }
-
-      else {
-
-        entryLow =
-          ema20 - (ema20 * tolerance);
-
-        entryHigh =
-          ema20 + (ema20 * tolerance);
-
-        triggerLow = entryHigh;
-
-        triggerHigh =
-          entryHigh +
-          (entryHigh * tolerance);
-
-      }
-
-      stopLoss = ema50;
-
-      if (stopLoss >= entryLow) {
-        stopLoss =
-          entryLow - (entryLow * 0.02);
-      }
-
-      const risk =
-        entryLow - stopLoss;
-
-      target =
-        entryHigh + (2 * risk);
-
-      extraHTML = `
-
-        <div class="trade-plan">
-
-          <h3>Trade Plan</h3>
-
-          <div class="result-grid">
-
-            <div class="result-item">
-              <h4>Entry Range</h4>
-              <p>
-                ${entryLow.toFixed(2)}
-                -
-                ${entryHigh.toFixed(2)}
-              </p>
-            </div>
-
-            ${
-              verdict === "WATCH"
-                ? `
-                  <div class="result-item">
-                    <h4>Trigger Zone</h4>
-                    <p>
-                      ${triggerLow.toFixed(2)}
-                      -
-                      ${triggerHigh.toFixed(2)}
-                    </p>
-                  </div>
-                `
-                : ""
-            }
-
-            <div class="result-item">
-              <h4>Stop Loss</h4>
-              <p>${stopLoss.toFixed(2)}</p>
-            </div>
-
-            <div class="result-item">
-              <h4>Target</h4>
-              <p>${target.toFixed(2)}</p>
-            </div>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }
+    verdict = "BUY";
+    priority = "High";
+    reason = "Strong trade-ready setup";
 
   }
+
+  else if (
+    cbScore >= 50 ||
+    pcScore >= 55 ||
+    rbScore >= 60
+  ) {
+
+    verdict = "WATCH";
+    priority = "Medium";
+    reason = "Setup forming, monitor closely";
+
+  }
+
+  if (
+    (timeframe === "Daily" && distance > 0.05) ||
+    (timeframe === "15 Min" && distance > 0.01)
+  ) {
+
+    verdict = "AVOID";
+    priority = "Low";
+    reason = "Overextended";
+
+  }
+
+  // COLOR
 
   let verdictClass = "avoid";
 
@@ -290,6 +165,87 @@ function analyzeStock() {
   if (verdict === "WATCH") {
     verdictClass = "watch";
   }
+
+  // TRADE PLAN
+
+  let tradePlanHTML = "";
+
+  let entryLow;
+  let entryHigh;
+  let stopLoss;
+  let target;
+
+  if (
+    verdict === "BUY" ||
+    verdict === "WATCH"
+  ) {
+
+    if (verdict === "BUY") {
+
+      entryLow = ltp;
+      entryHigh =
+        ltp + (ltp * tolerance);
+
+    }
+
+    else {
+
+      entryLow =
+        ema20 - (ema20 * tolerance);
+
+      entryHigh =
+        ema20 + (ema20 * tolerance);
+
+    }
+
+    stopLoss = ema50;
+
+    if (stopLoss >= entryLow) {
+      stopLoss =
+        entryLow - (entryLow * 0.02);
+    }
+
+    const risk =
+      entryLow - stopLoss;
+
+    target =
+      entryHigh + (2 * risk);
+
+    tradePlanHTML = `
+
+      <div class="trade-plan">
+
+        <h3>Trade Plan</h3>
+
+        <div class="result-grid">
+
+          <div class="result-item">
+            <h4>Entry Range</h4>
+            <p>
+              ${entryLow.toFixed(2)}
+              -
+              ${entryHigh.toFixed(2)}
+            </p>
+          </div>
+
+          <div class="result-item">
+            <h4>Stop Loss</h4>
+            <p>${stopLoss.toFixed(2)}</p>
+          </div>
+
+          <div class="result-item">
+            <h4>Target</h4>
+            <p>${target.toFixed(2)}</p>
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+  }
+
+  // RESULT
 
   const resultContent =
     document.getElementById("resultContent");
@@ -347,16 +303,13 @@ function analyzeStock() {
 
     </div>
 
-    ${extraHTML}
+    ${tradePlanHTML}
 
   `;
 
   // POSITION SIZE
 
-  if (
-    verdict === "BUY" &&
-    mode === "new"
-  ) {
+  if (verdict === "BUY") {
 
     resultContent.innerHTML += `
 
@@ -370,7 +323,7 @@ function analyzeStock() {
         <label>Risk %</label>
         <input type="number" id="riskPercent" value="1">
 
-        <button class="calc-btn" onclick="calculatePosition()">
+        <button class="calc-btn" onclick="calculatePosition(${entryLow}, ${stopLoss})">
           Calculate Quantity
         </button>
 
@@ -379,7 +332,6 @@ function analyzeStock() {
       </div>
 
     `;
-
   }
 
   document
@@ -388,7 +340,7 @@ function analyzeStock() {
 
 }
 
-function calculatePosition() {
+function calculatePosition(entry, stopLoss) {
 
   const capital =
     parseFloat(
@@ -411,12 +363,26 @@ function calculatePosition() {
   const riskAmount =
     capital * (riskPercent / 100);
 
-  const qty =
-    Math.floor(riskAmount / 10);
+  const riskPerShare =
+    entry - stopLoss;
 
-  document.getElementById("qtyResult").innerHTML =
-    "Suggested Quantity: " +
-    qty +
-    " shares";
+  const qty =
+    Math.floor(riskAmount / riskPerShare);
+
+  if (qty < 1) {
+
+    document.getElementById("qtyResult").innerHTML =
+      "Capital insufficient for defined risk management.";
+
+  }
+
+  else {
+
+    document.getElementById("qtyResult").innerHTML =
+      "Suggested Quantity: " +
+      qty +
+      " shares";
+
+  }
 
 }
