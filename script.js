@@ -56,15 +56,21 @@ function analyzeStock() {
     isNaN(ema50) ||
     isNaN(rsi)
   ) {
+
     alert("Please fill all required fields");
     return;
+
   }
 
   const tolerance =
-    timeframe === "Daily" ? 0.02 : 0.005;
+    timeframe === "Daily"
+      ? 0.02
+      : 0.005;
 
   const chargesBuffer =
-    timeframe === "Daily" ? 0.005 : 0.003;
+    timeframe === "Daily"
+      ? 0.005
+      : 0.003;
 
   const distance =
     (ltp - ema20) / ema20;
@@ -83,53 +89,61 @@ function analyzeStock() {
   // CB
 
   if (ltp > ema20) cbScore += 25;
+
   if (ema20 > ema50) cbScore += 25;
+
   if (emaGap >= 0.5) cbScore += 25;
-  if (rsi >= 55 && rsi <= 70) cbScore += 25;
+
+  if (rsi >= 55 && rsi <= 70)
+    cbScore += 25;
 
   // PC
 
-  if (ema20 > ema50) pcScore += 30;
-  if (Math.abs(distance) <= tolerance) pcScore += 40;
-  if (rsi >= 50 && rsi <= 60) pcScore += 30;
+  if (ema20 > ema50)
+    pcScore += 30;
+
+  if (
+    Math.abs(distance) <= tolerance
+  )
+    pcScore += 40;
+
+  if (rsi >= 50 && rsi <= 60)
+    pcScore += 30;
 
   // RB
 
-  if (Math.abs(emaGap) <= 0.5) rbScore += 40;
-  if (rsi >= 45 && rsi <= 55) rbScore += 30;
-  if (Math.abs(distance) <= tolerance) rbScore += 30;
+  if (Math.abs(emaGap) <= 0.5)
+    rbScore += 40;
+
+  if (rsi >= 45 && rsi <= 55)
+    rbScore += 30;
+
+  if (
+    Math.abs(distance) <= tolerance
+  )
+    rbScore += 30;
 
   // =========================================
-  // SETUP DETECTION
+  // HIGHEST SCORE SETUP ENGINE
   // =========================================
 
   let setup = "None";
+  let highestScore = Math.max(
+    cbScore,
+    pcScore,
+    rbScore
+  );
 
-  if (
-    ltp > ema20 &&
-    ema20 > ema50 &&
-    emaGap >= 0.5
-  ) {
-
+  if (highestScore === cbScore) {
     setup = "CB";
-
   }
 
-  else if (
-    ema20 > ema50 &&
-    Math.abs(distance) <= tolerance
-  ) {
-
+  if (highestScore === pcScore) {
     setup = "PC";
-
   }
 
-  else if (
-    Math.abs(emaGap) <= 0.5
-  ) {
-
+  if (highestScore === rbScore) {
     setup = "RB";
-
   }
 
   // =========================================
@@ -140,44 +154,103 @@ function analyzeStock() {
   let priority = "Low";
   let reason = "Weak structure";
 
-  // BUY
-
-  if (
-    cbScore >= 75 ||
-    pcScore >= 80 ||
-    rbScore >= 85
-  ) {
-
-    verdict = "BUY";
-    priority = "High";
-    reason = "Strong trade-ready setup";
-
-  }
-
-  // WATCH
-
-  else if (
-    cbScore >= 50 ||
-    pcScore >= 55 ||
-    rbScore >= 60
-  ) {
-
-    verdict = "WATCH";
-    priority = "Medium";
-    reason = "Setup forming, monitor closely";
-
-  }
-
   // OVEREXTENDED
 
   if (
-    (timeframe === "Daily" && distance > 0.05) ||
-    (timeframe === "15 Min" && distance > 0.01)
+    (timeframe === "Daily" &&
+      distance > 0.05) ||
+
+    (timeframe === "15 Min" &&
+      distance > 0.01)
   ) {
 
     verdict = "AVOID";
     priority = "Low";
     reason = "Overextended";
+
+  }
+
+  // CB VERDICT
+
+  else if (setup === "CB") {
+
+    if (cbScore >= 75) {
+
+      verdict = "BUY";
+      priority = "High";
+      reason =
+        "Strong continuation breakout";
+
+    }
+
+    else if (cbScore >= 50) {
+
+      verdict = "WATCH";
+      priority = "Medium";
+      reason =
+        "Breakout structure forming";
+
+    }
+
+  }
+
+  // PC VERDICT
+
+  else if (setup === "PC") {
+
+    // BUY ONLY AFTER RSI CONFIRMATION
+
+    if (
+      pcScore >= 90 &&
+      rsi >= 58
+    ) {
+
+      verdict = "BUY";
+      priority = "High";
+      reason =
+        "Pullback confirmation strong";
+
+    }
+
+    // OTHERWISE WATCH
+
+    else if (pcScore >= 55) {
+
+      verdict = "WATCH";
+      priority = "Medium";
+      reason =
+        "Setup forming, monitor closely";
+
+    }
+
+  }
+
+  // RB VERDICT
+
+  else if (setup === "RB") {
+
+    // BUY ONLY AFTER STRONG BREAKOUT
+
+    if (
+      rbScore >= 90 &&
+      rsi >= 55
+    ) {
+
+      verdict = "BUY";
+      priority = "High";
+      reason =
+        "Range breakout confirmed";
+
+    }
+
+    else if (rbScore >= 60) {
+
+      verdict = "WATCH";
+      priority = "Medium";
+      reason =
+        "Range breakout developing";
+
+    }
 
   }
 
@@ -241,7 +314,8 @@ function analyzeStock() {
     if (stopLoss >= entryLow) {
 
       stopLoss =
-        entryLow - (entryLow * 0.02);
+        entryLow -
+        (entryLow * 0.02);
 
     }
 
@@ -291,12 +365,16 @@ function analyzeStock() {
 
           <div class="result-item">
             <h4>Stop Loss</h4>
-            <p>${stopLoss.toFixed(2)}</p>
+            <p>
+              ${stopLoss.toFixed(2)}
+            </p>
           </div>
 
           <div class="result-item">
             <h4>Target</h4>
-            <p>${target.toFixed(2)}</p>
+            <p>
+              ${target.toFixed(2)}
+            </p>
           </div>
 
         </div>
@@ -312,7 +390,9 @@ function analyzeStock() {
   // =========================================
 
   const resultContent =
-    document.getElementById("resultContent");
+    document.getElementById(
+      "resultContent"
+    );
 
   resultContent.innerHTML = `
 
@@ -375,20 +455,25 @@ function analyzeStock() {
   // POSITION SIZE
   // =========================================
 
-  if (
-    verdict === "BUY"
-  ) {
+  if (verdict === "BUY") {
 
     resultContent.innerHTML += `
 
       <div class="position-box">
 
-        <h3>Position Size Calculator</h3>
+        <h3>
+          Position Size Calculator
+        </h3>
 
         <label>Capital</label>
-        <input type="number" id="capital">
+
+        <input
+          type="number"
+          id="capital"
+        >
 
         <label>Risk %</label>
+
         <input
           type="number"
           id="riskPercent"
@@ -397,7 +482,12 @@ function analyzeStock() {
 
         <button
           class="calc-btn"
-          onclick="calculatePosition(${entryLow}, ${stopLoss})"
+          onclick="
+            calculatePosition(
+              ${entryLow},
+              ${stopLoss}
+            )
+          "
         >
           Calculate Quantity
         </button>
@@ -423,16 +513,23 @@ function analyzeStock() {
 // POSITION SIZE CALCULATOR
 // =========================================
 
-function calculatePosition(entry, stopLoss) {
+function calculatePosition(
+  entry,
+  stopLoss
+) {
 
   const capital =
     parseFloat(
-      document.getElementById("capital").value
+      document.getElementById(
+        "capital"
+      ).value
     );
 
   const riskPercent =
     parseFloat(
-      document.getElementById("riskPercent").value
+      document.getElementById(
+        "riskPercent"
+      ).value
     );
 
   if (
@@ -440,40 +537,41 @@ function calculatePosition(entry, stopLoss) {
     isNaN(riskPercent)
   ) {
 
-    alert("Fill Capital & Risk %");
+    alert(
+      "Fill Capital & Risk %"
+    );
+
     return;
 
   }
 
-  // TOTAL RISK ALLOWED
-
   const riskAmount =
-    capital * (riskPercent / 100);
-
-  // RISK PER SHARE
+    capital *
+    (riskPercent / 100);
 
   const riskPerShare =
     entry - stopLoss;
 
-  // QUANTITY
-
   const quantity =
-    Math.floor(riskAmount / riskPerShare);
+    Math.floor(
+      riskAmount /
+      riskPerShare
+    );
 
-  // RESULT
+  if (quantity < 1) {
 
-  if (
-    quantity < 1
-  ) {
-
-    document.getElementById("qtyResult").innerHTML =
+    document.getElementById(
+      "qtyResult"
+    ).innerHTML =
       "Capital insufficient for defined risk management.";
 
   }
 
   else {
 
-    document.getElementById("qtyResult").innerHTML =
+    document.getElementById(
+      "qtyResult"
+    ).innerHTML =
       "Suggested Quantity: " +
       quantity +
       " shares";
