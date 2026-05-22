@@ -86,7 +86,7 @@ function analyzeStock() {
   let pcScore = 0;
   let rbScore = 0;
 
-  // CB
+  // CB SCORE
 
   if (ltp > ema20)
     cbScore += 25;
@@ -100,7 +100,7 @@ function analyzeStock() {
   if (rsi >= 55 && rsi <= 70)
     cbScore += 25;
 
-  // PC
+  // PC SCORE
 
   if (ema20 > ema50)
     pcScore += 30;
@@ -113,7 +113,7 @@ function analyzeStock() {
   if (rsi >= 50 && rsi <= 60)
     pcScore += 30;
 
-  // RB
+  // RB SCORE
 
   if (Math.abs(emaGap) <= 0.5)
     rbScore += 40;
@@ -127,25 +127,46 @@ function analyzeStock() {
     rbScore += 30;
 
   // =====================================
-  // SETUP ENGINE
+  // STRUCTURE FLAGS
+  // =====================================
+
+  const nearEMA20 =
+    Math.abs(distance) <= tolerance;
+
+  const emaCompressed =
+    Math.abs(emaGap) <= 0.5;
+
+  const strongTrend =
+    ema20 > ema50 &&
+    emaGap >= 0.5;
+
+  // =====================================
+  // IMPROVED SETUP ENGINE
   // =====================================
 
   let setup = "None";
   let setupScore = 0;
 
+  // PRIORITY 1
+  // RANGE STRUCTURE
+
   if (
-    cbScore >= pcScore &&
-    cbScore >= rbScore
+    emaCompressed &&
+    rsi >= 45 &&
+    rsi <= 55
   ) {
 
-    setup = "CB";
-    setupScore = cbScore;
+    setup = "RB";
+    setupScore = rbScore;
 
   }
 
+  // PRIORITY 2
+  // PULLBACK STRUCTURE
+
   else if (
-    pcScore >= cbScore &&
-    pcScore >= rbScore
+    nearEMA20 &&
+    strongTrend
   ) {
 
     setup = "PC";
@@ -153,10 +174,16 @@ function analyzeStock() {
 
   }
 
-  else {
+  // PRIORITY 3
+  // BREAKOUT STRUCTURE
 
-    setup = "RB";
-    setupScore = rbScore;
+  else if (
+    ltp > ema20 &&
+    strongTrend
+  ) {
+
+    setup = "CB";
+    setupScore = cbScore;
 
   }
 
@@ -216,9 +243,6 @@ function analyzeStock() {
   // PC VERDICT
 
   else if (setup === "PC") {
-
-    // PC SHOULD MOSTLY WATCH
-    // BUY ONLY AFTER STRONG CONFIRMATION
 
     if (
       pcScore >= 100 &&
@@ -328,7 +352,7 @@ function analyzeStock() {
 
     }
 
-    // SL
+    // STOP LOSS
 
     stopLoss = ema50;
 
@@ -407,7 +431,7 @@ function analyzeStock() {
   }
 
   // =====================================
-  // RESULT
+  // RESULT SECTION
   // =====================================
 
   const resultContent =
