@@ -1,188 +1,217 @@
+/* style.css */
+
 * {
+
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+
 }
 
 body {
-  background: #f5f7fb;
+
   font-family: Arial, sans-serif;
-  color: #222;
-}
-
-.header {
-  background: white;
+  background: #f5f7fb;
+  color: #111;
   padding: 20px;
-  text-align: center;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
 
-.header h1 {
-  font-size: 28px;
-  margin-bottom: 6px;
-}
-
-.header p {
-  color: #666;
 }
 
 .container {
-  width: 95%;
+
   max-width: 1200px;
-  margin: 25px auto;
+  margin: auto;
+
+}
+
+.app-title {
+
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 34px;
+
 }
 
 .card {
+
   background: white;
   border-radius: 18px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow:
+    0 4px 15px rgba(0,0,0,0.08);
+
 }
 
-.card h2 {
-  margin-bottom: 20px;
-}
+.form-grid {
 
-.grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns:
+    repeat(auto-fit, minmax(220px,1fr));
+
   gap: 18px;
+  margin-bottom: 20px;
+
 }
 
-.input-group {
-  display: flex;
-  flex-direction: column;
-}
+label {
 
-.input-group label {
+  display: block;
   margin-bottom: 8px;
-  font-weight: 600;
+  font-weight: bold;
+
 }
 
-.input-group input,
-.input-group select {
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
+input,
+select {
+
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
   font-size: 15px;
-}
 
-.extra-section {
-  margin-top: 28px;
 }
 
 .analyze-btn {
+
   width: 100%;
-  margin-top: 28px;
-  padding: 14px;
+  padding: 16px;
   border: none;
-  border-radius: 12px;
-  background: #0f9d58;
+  border-radius: 14px;
+  background: #16a34a;
   color: white;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   cursor: pointer;
+
 }
 
-.hidden {
-  display: none;
+.analyze-btn:hover {
+
+  opacity: 0.9;
+
 }
 
 .result-grid {
+
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns:
+    repeat(auto-fit, minmax(220px,1fr));
+
   gap: 18px;
-  margin-top: 18px;
+  margin-top: 20px;
+
 }
 
 .result-item {
-  background: #f8f9fc;
-  border-radius: 14px;
+
+  background: #f4f6fa;
   padding: 18px;
+  border-radius: 14px;
+
 }
 
 .result-item h4 {
-  margin-bottom: 8px;
-  color: #666;
-  font-size: 14px;
+
+  margin-bottom: 10px;
+  color: #555;
+
 }
 
 .result-item p {
-  font-size: 16px;
+
+  font-size: 24px;
   font-weight: bold;
+
 }
 
 .buy {
-  color: #0f9d58;
+
+  color: #16a34a;
+
 }
 
 .watch {
-  color: #ff9800;
+
+  color: #f59e0b;
+
 }
 
 .avoid {
-  color: #e53935;
+
+  color: #dc2626;
+
 }
 
 .trade-plan {
-  margin-top: 28px;
-}
 
-.trade-plan h3 {
-  margin-bottom: 16px;
+  margin-top: 30px;
+
 }
 
 .position-box {
-  margin-top: 28px;
+
+  margin-top: 30px;
   padding: 20px;
-  background: #f8f9fc;
-  border-radius: 16px;
+  background: #f4f6fa;
+  border-radius: 14px;
+
 }
 
-.position-box label {
-  display: block;
-  margin-top: 14px;
-  margin-bottom: 8px;
-}
+.position-box h3 {
 
-.position-box input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
+  margin-bottom: 18px;
+
 }
 
 .calc-btn {
+
   width: 100%;
-  margin-top: 20px;
-  padding: 14px;
+  margin-top: 15px;
+  padding: 15px;
   border: none;
   border-radius: 12px;
-  background: #222;
+  background: #111827;
   color: white;
   font-weight: bold;
   cursor: pointer;
+
 }
 
 .qty-result {
-  margin-top: 18px;
-  font-size: 18px;
+
+  margin-top: 15px;
+  font-size: 20px;
   font-weight: bold;
-  text-align: center;
+
 }
 
-@media (max-width: 768px) {
+.hidden {
 
-  .header h1 {
-    font-size: 22px;
+  display: none;
+
+}
+
+.sub-title {
+
+  margin-bottom: 18px;
+  margin-top: 10px;
+
+}
+
+@media(max-width:768px){
+
+  .app-title {
+
+    font-size: 28px;
+
   }
 
-  .card {
-    padding: 18px;
+  .result-item p {
+
+    font-size: 20px;
+
   }
 
 }
