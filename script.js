@@ -1,30 +1,37 @@
+// script.js
+
 function toggleModeFields() {
 
   const mode =
     document.getElementById("mode").value;
 
-  const watchlistFields =
-    document.getElementById("watchlistFields");
+  document
+    .getElementById("watchlistFields")
+    .classList.add("hidden");
 
-  const activeFields =
-    document.getElementById("activeFields");
-
-  watchlistFields.classList.add("hidden");
-  activeFields.classList.add("hidden");
+  document
+    .getElementById("activeFields")
+    .classList.add("hidden");
 
   if (mode === "watchlist") {
-    watchlistFields.classList.remove("hidden");
+
+    document
+      .getElementById("watchlistFields")
+      .classList.remove("hidden");
+
   }
 
   if (mode === "active") {
-    activeFields.classList.remove("hidden");
+
+    document
+      .getElementById("activeFields")
+      .classList.remove("hidden");
+
   }
 
 }
 
-window.onload = function () {
-  toggleModeFields();
-};
+window.onload = toggleModeFields;
 
 function analyzeStock() {
 
@@ -38,16 +45,24 @@ function analyzeStock() {
     document.getElementById("timeframe").value;
 
   const ltp =
-    parseFloat(document.getElementById("ltp").value);
+    parseFloat(
+      document.getElementById("ltp").value
+    );
 
   const ema20 =
-    parseFloat(document.getElementById("ema20").value);
+    parseFloat(
+      document.getElementById("ema20").value
+    );
 
   const ema50 =
-    parseFloat(document.getElementById("ema50").value);
+    parseFloat(
+      document.getElementById("ema50").value
+    );
 
   const rsi =
-    parseFloat(document.getElementById("rsi").value);
+    parseFloat(
+      document.getElementById("rsi").value
+    );
 
   if (
     !stockName ||
@@ -57,24 +72,15 @@ function analyzeStock() {
     isNaN(rsi)
   ) {
 
-    alert("Please fill all required fields");
+    alert("Fill all fields");
     return;
 
   }
-
-  // =====================================
-  // CALCULATIONS
-  // =====================================
 
   const tolerance =
     timeframe === "Daily"
       ? 0.02
       : 0.005;
-
-  const chargesBuffer =
-    timeframe === "Daily"
-      ? 0.005
-      : 0.003;
 
   const distance =
     Math.abs(
@@ -92,15 +98,11 @@ function analyzeStock() {
   const emaCompressed =
     emaGap <= 0.5;
 
-  // =====================================
   // SCORES
-  // =====================================
 
   let cbScore = 0;
   let pcScore = 0;
   let rbScore = 0;
-
-  // CB
 
   if (ltp > ema20)
     cbScore += 25;
@@ -114,8 +116,6 @@ function analyzeStock() {
   if (rsi >= 55 && rsi <= 70)
     cbScore += 25;
 
-  // PC
-
   if (ema20 > ema50)
     pcScore += 30;
 
@@ -124,8 +124,6 @@ function analyzeStock() {
 
   if (rsi >= 50 && rsi <= 60)
     pcScore += 30;
-
-  // RB
 
   if (emaCompressed)
     rbScore += 40;
@@ -136,9 +134,7 @@ function analyzeStock() {
   if (nearEMA20)
     rbScore += 30;
 
-  // =====================================
-  // SETUP ENGINE
-  // =====================================
+  // SETUP
 
   let setup = "None";
   let setupScore = 0;
@@ -166,8 +162,7 @@ function analyzeStock() {
 
   else if (
     ltp > ema20 &&
-    ema20 > ema50 &&
-    emaGap >= 0.5
+    ema20 > ema50
   ) {
 
     setup = "CB";
@@ -175,122 +170,14 @@ function analyzeStock() {
 
   }
 
-  // =====================================
-  // VERDICT ENGINE
-  // =====================================
+  const resultContent =
+    document.getElementById("resultContent");
 
-  let verdict = "AVOID";
-  let priority = "Low";
-  let reason = "Weak structure";
-
-  if (
-    (timeframe === "Daily" &&
-      distance > 0.05) ||
-
-    (timeframe === "15 Min" &&
-      distance > 0.01)
-  ) {
-
-    verdict = "AVOID";
-    priority = "Low";
-    reason = "Overextended";
-
-  }
-
-  else if (setup === "CB") {
-
-    if (
-      cbScore >= 75 &&
-      rsi >= 58
-    ) {
-
-      verdict = "BUY";
-      priority = "High";
-      reason =
-        "Strong continuation breakout";
-
-    }
-
-    else if (
-      cbScore >= 50
-    ) {
-
-      verdict = "WATCH";
-      priority = "Medium";
-      reason =
-        "Breakout setup forming";
-
-    }
-
-  }
-
-  else if (setup === "PC") {
-
-    if (
-      pcScore >= 100 &&
-      rsi >= 58 &&
-      ltp > ema20
-    ) {
-
-      verdict = "BUY";
-      priority = "High";
-      reason =
-        "Pullback continuation confirmed";
-
-    }
-
-    else if (
-      pcScore >= 55
-    ) {
-
-      verdict = "WATCH";
-      priority = "Medium";
-      reason =
-        "Setup forming, monitor closely";
-
-    }
-
-  }
-
-  else if (setup === "RB") {
-
-    if (
-      rbScore >= 90 &&
-      rsi >= 55
-    ) {
-
-      verdict = "BUY";
-      priority = "High";
-      reason =
-        "Range breakout confirmed";
-
-    }
-
-    else if (
-      rbScore >= 60
-    ) {
-
-      verdict = "WATCH";
-      priority = "Medium";
-      reason =
-        "Range breakout developing";
-
-    }
-
-  }
-
-  // =====================================
+  // ====================================
   // ACTIVE TRADE ENGINE
-  // =====================================
-
-  let followUpHTML = "";
-  let hideTradePlan = false;
-  let hidePositionSizing = false;
+  // ====================================
 
   if (mode === "active") {
-
-    hideTradePlan = true;
-    hidePositionSizing = true;
 
     const executedEntry =
       parseFloat(
@@ -313,7 +200,7 @@ function analyzeStock() {
         ).value
       );
 
-    const quantityTraded =
+    const quantity =
       parseFloat(
         document.getElementById(
           "quantityTraded"
@@ -323,44 +210,47 @@ function analyzeStock() {
     let action =
       "Continue Holding";
 
-    let actionReason =
-      "Trend remains healthy";
+    let reason =
+      "Trend remains healthy above EMA20 with strong momentum.";
 
-    let exitPlan = "";
+    let extraPlan = "";
 
     // FULL EXIT
 
     if (
+      ltp <= currentSL ||
       ltp < ema20 ||
-      rsi < 45
+      rsi < 45 ||
+      ema20 < ema50
     ) {
 
       action = "Full Exit";
-      actionReason =
-        "Structure weakening";
 
-      exitPlan = `
+      reason =
+        "Trend structure weakening or stop loss breached.";
+
+      extraPlan = `
+
         <div class="trade-plan">
+
           <h3>Exit Plan</h3>
 
           <div class="result-grid">
 
             <div class="result-item">
               <h4>Exit Quantity</h4>
-              <p>
-                ${quantityTraded} Shares
-              </p>
+              <p>${quantity}</p>
             </div>
 
             <div class="result-item">
               <h4>Exit Price</h4>
-              <p>
-                ${ltp.toFixed(2)}
-              </p>
+              <p>${ltp.toFixed(2)}</p>
             </div>
 
           </div>
+
         </div>
+
       `;
 
     }
@@ -368,47 +258,45 @@ function analyzeStock() {
     // PARTIAL EXIT
 
     else if (
-      ltp >= currentTarget * 0.95
+      ltp >= currentTarget * 0.95 &&
+      rsi >= 65
     ) {
 
-      action = "Partial Exit";
-      actionReason =
-        "Near target zone";
-
       const partialQty =
-        Math.floor(
-          quantityTraded / 2
-        );
+        Math.floor(quantity / 2);
 
-      exitPlan = `
+      action = "Partial Exit";
+
+      reason =
+        "Stock near target zone with strong momentum.";
+
+      extraPlan = `
+
         <div class="trade-plan">
+
           <h3>Partial Exit Plan</h3>
 
           <div class="result-grid">
 
             <div class="result-item">
               <h4>Exit Quantity</h4>
-              <p>
-                ${partialQty} Shares
-              </p>
+              <p>${partialQty}</p>
             </div>
 
             <div class="result-item">
               <h4>Hold Quantity</h4>
-              <p>
-                ${quantityTraded - partialQty} Shares
-              </p>
+              <p>${quantity - partialQty}</p>
             </div>
 
             <div class="result-item">
               <h4>Suggested Trail SL</h4>
-              <p>
-                ${ema20.toFixed(2)}
-              </p>
+              <p>${ema20.toFixed(2)}</p>
             </div>
 
           </div>
+
         </div>
+
       `;
 
     }
@@ -416,70 +304,185 @@ function analyzeStock() {
     // TRAIL SL
 
     else if (
-      ltp > executedEntry * 1.05
+      ltp >= executedEntry * 1.05 &&
+      rsi >= 55 &&
+      rsi <= 65 &&
+      ltp < currentTarget * 0.95
     ) {
 
       action = "Trail Stop Loss";
-      actionReason =
-        "Trade moving strongly";
 
-      exitPlan = `
+      reason =
+        "Trade progressing well. Protect profits.";
+
+      extraPlan = `
+
         <div class="trade-plan">
+
           <h3>Trail Stop Loss</h3>
 
           <div class="result-grid">
 
             <div class="result-item">
               <h4>Current SL</h4>
-              <p>
-                ${currentSL.toFixed(2)}
-              </p>
+              <p>${currentSL.toFixed(2)}</p>
             </div>
 
             <div class="result-item">
               <h4>Suggested New SL</h4>
-              <p>
-                ${ema20.toFixed(2)}
-              </p>
+              <p>${ema20.toFixed(2)}</p>
             </div>
 
           </div>
+
         </div>
+
       `;
 
     }
 
-    followUpHTML = `
+    resultContent.innerHTML = `
 
-      <div class="trade-plan">
+      <div class="result-grid">
 
-        <h3>Active Trade Follow-Up</h3>
+        <div class="result-item">
+          <h4>Stock Name</h4>
+          <p>${stockName}</p>
+        </div>
 
-        <div class="result-grid">
+        <div class="result-item">
+          <h4>Timeframe</h4>
+          <p>${timeframe}</p>
+        </div>
 
-          <div class="result-item">
-            <h4>Action</h4>
-            <p>${action}</p>
-          </div>
+        <div class="result-item">
+          <h4>Setup</h4>
+          <p>${setup}</p>
+        </div>
 
-          <div class="result-item">
-            <h4>Reason</h4>
-            <p>${actionReason}</p>
-          </div>
+        <div class="result-item">
+          <h4>Setup Score</h4>
+          <p>${setupScore}/100</p>
+        </div>
 
+        <div class="result-item">
+          <h4>Trade Management Verdict</h4>
+          <p>${action}</p>
+        </div>
+
+        <div class="result-item">
+          <h4>Reason</h4>
+          <p>${reason}</p>
+        </div>
+
+        <div class="result-item">
+          <h4>CB Score</h4>
+          <p>${cbScore}/100</p>
+        </div>
+
+        <div class="result-item">
+          <h4>PC Score</h4>
+          <p>${pcScore}/100</p>
+        </div>
+
+        <div class="result-item">
+          <h4>RB Score</h4>
+          <p>${rbScore}/100</p>
         </div>
 
       </div>
 
-      ${exitPlan}
+      ${extraPlan}
 
     `;
 
+    document
+      .getElementById("resultCard")
+      .classList.remove("hidden");
+
+    return;
+
   }
 
-  // =====================================
-  // RESULT COLOR
-  // =====================================
+  // ====================================
+  // NORMAL SCAN / WATCHLIST
+  // ====================================
+
+  let verdict = "AVOID";
+  let priority = "Low";
+  let reason = "Weak structure";
+
+  if (
+    (timeframe === "Daily" &&
+      distance > 0.05) ||
+
+    (timeframe === "15 Min" &&
+      distance > 0.01)
+  ) {
+
+    verdict = "AVOID";
+    reason = "Overextended";
+
+  }
+
+  else if (setup === "CB") {
+
+    if (
+      cbScore >= 75 &&
+      rsi >= 58
+    ) {
+
+      verdict = "BUY";
+      priority = "High";
+      reason =
+        "Strong continuation breakout";
+
+    }
+
+    else {
+
+      verdict = "WATCH";
+      priority = "Medium";
+      reason =
+        "Breakout setup forming";
+
+    }
+
+  }
+
+  else if (setup === "PC") {
+
+    if (
+      pcScore >= 100 &&
+      rsi >= 58
+    ) {
+
+      verdict = "BUY";
+      priority = "High";
+      reason =
+        "Pullback continuation confirmed";
+
+    }
+
+    else {
+
+      verdict = "WATCH";
+      priority = "Medium";
+      reason =
+        "Setup forming, monitor closely";
+
+    }
+
+  }
+
+  else if (setup === "RB") {
+
+    verdict = "WATCH";
+    priority = "Medium";
+    reason =
+      "Range breakout developing";
+
+  }
 
   let verdictClass = "avoid";
 
@@ -489,128 +492,50 @@ function analyzeStock() {
   if (verdict === "WATCH")
     verdictClass = "watch";
 
-  // =====================================
   // TRADE PLAN
-  // =====================================
-
-  let tradePlanHTML = "";
 
   let entryLow;
   let entryHigh;
   let stopLoss;
   let target;
 
-  if (
-    !hideTradePlan &&
-    (
-      verdict === "BUY" ||
-      verdict === "WATCH"
-    )
-  ) {
+  if (verdict === "BUY") {
 
-    if (verdict === "BUY") {
+    entryLow = ltp;
 
-      entryLow = ltp;
-
-      entryHigh =
-        ltp + (ltp * tolerance);
-
-    }
-
-    else {
-
-      entryLow =
-        ema20 -
-        (ema20 * tolerance);
-
-      entryHigh =
-        ema20 +
-        (ema20 * tolerance);
-
-    }
-
-    stopLoss = ema50;
-
-    if (
-      stopLoss >= entryLow
-    ) {
-
-      stopLoss =
-        entryLow -
-        (entryLow * 0.02);
-
-    }
-
-    const risk =
-      entryLow - stopLoss;
-
-    target =
-      entryHigh +
-      (2 * risk) +
-      (entryHigh * chargesBuffer);
-
-    tradePlanHTML = `
-
-      <div class="trade-plan">
-
-        <h3>Trade Plan</h3>
-
-        <div class="result-grid">
-
-          <div class="result-item">
-            <h4>Entry Range</h4>
-            <p>
-              ${entryLow.toFixed(2)}
-              -
-              ${entryHigh.toFixed(2)}
-            </p>
-          </div>
-
-          ${
-            verdict === "WATCH"
-            ? `
-              <div class="result-item">
-                <h4>Trigger Zone</h4>
-                <p>
-                  ${entryHigh.toFixed(2)}
-                  -
-                  ${(entryHigh + (entryHigh * tolerance * 0.5)).toFixed(2)}
-                </p>
-              </div>
-            `
-            : ""
-          }
-
-          <div class="result-item">
-            <h4>Stop Loss</h4>
-            <p>
-              ${stopLoss.toFixed(2)}
-            </p>
-          </div>
-
-          <div class="result-item">
-            <h4>Target</h4>
-            <p>
-              ${target.toFixed(2)}
-            </p>
-          </div>
-
-        </div>
-
-      </div>
-
-    `;
+    entryHigh =
+      ltp + (ltp * tolerance);
 
   }
 
-  // =====================================
-  // RESULT SECTION
-  // =====================================
+  else {
 
-  const resultContent =
-    document.getElementById(
-      "resultContent"
-    );
+    entryLow =
+      ema20 -
+      (ema20 * tolerance);
+
+    entryHigh =
+      ema20 +
+      (ema20 * tolerance);
+
+  }
+
+  stopLoss = ema50;
+
+  if (stopLoss >= entryLow) {
+
+    stopLoss =
+      entryLow -
+      (entryLow * 0.02);
+
+  }
+
+  const risk =
+    entryLow - stopLoss;
+
+  target =
+    entryHigh +
+    (2 * risk);
 
   resultContent.innerHTML = `
 
@@ -670,20 +595,61 @@ function analyzeStock() {
 
     </div>
 
-    ${tradePlanHTML}
+    ${
+      verdict !== "AVOID"
+      ? `
 
-    ${followUpHTML}
+      <div class="trade-plan">
+
+        <h3>Trade Plan</h3>
+
+        <div class="result-grid">
+
+          <div class="result-item">
+            <h4>Entry Range</h4>
+            <p>
+              ${entryLow.toFixed(2)}
+              -
+              ${entryHigh.toFixed(2)}
+            </p>
+          </div>
+
+          ${
+            verdict === "WATCH"
+            ? `
+              <div class="result-item">
+                <h4>Trigger Zone</h4>
+                <p>
+                  ${entryHigh.toFixed(2)}
+                  -
+                  ${(entryHigh * 1.01).toFixed(2)}
+                </p>
+              </div>
+            `
+            : ""
+          }
+
+          <div class="result-item">
+            <h4>Stop Loss</h4>
+            <p>${stopLoss.toFixed(2)}</p>
+          </div>
+
+          <div class="result-item">
+            <h4>Target</h4>
+            <p>${target.toFixed(2)}</p>
+          </div>
+
+        </div>
+
+      </div>
+
+      `
+      : ""
+    }
 
   `;
 
-  // =====================================
-  // POSITION SIZE
-  // =====================================
-
-  if (
-    verdict === "BUY" &&
-    !hidePositionSizing
-  ) {
+  if (verdict === "BUY") {
 
     resultContent.innerHTML += `
 
@@ -737,10 +703,6 @@ function analyzeStock() {
 
 }
 
-// =====================================
-// POSITION SIZE
-// =====================================
-
 function calculatePosition(
   entry,
   stopLoss
@@ -760,19 +722,6 @@ function calculatePosition(
       ).value
     );
 
-  if (
-    isNaN(capital) ||
-    isNaN(riskPercent)
-  ) {
-
-    alert(
-      "Fill Capital & Risk %"
-    );
-
-    return;
-
-  }
-
   const riskAmount =
     capital *
     (riskPercent / 100);
@@ -791,7 +740,7 @@ function calculatePosition(
     document.getElementById(
       "qtyResult"
     ).innerHTML =
-      "Capital insufficient for defined risk management.";
+      "Capital insufficient.";
 
   }
 
@@ -802,7 +751,7 @@ function calculatePosition(
     ).innerHTML =
       "Suggested Quantity: " +
       quantity +
-      " shares";
+      " Shares";
 
   }
 
