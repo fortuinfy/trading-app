@@ -1,5 +1,3 @@
-// script.js
-
 function toggleModeFields() {
 
   const mode =
@@ -77,10 +75,6 @@ function analyzeStock() {
 
   }
 
-  // =====================================
-  // CORE CALCULATIONS
-  // =====================================
-
   const tolerance =
     timeframe === "Daily"
       ? 0.02
@@ -102,15 +96,15 @@ function analyzeStock() {
   const emaCompressed =
     emaGap <= 0.5;
 
-  // =====================================
+  // ==============================
   // SCORES
-  // =====================================
+  // ==============================
 
   let cbScore = 0;
   let pcScore = 0;
   let rbScore = 0;
 
-  // CB SCORE
+  // CB
 
   if (ltp > ema20)
     cbScore += 25;
@@ -124,7 +118,7 @@ function analyzeStock() {
   if (rsi >= 55 && rsi <= 70)
     cbScore += 25;
 
-  // PC SCORE
+  // PC
 
   if (ema20 > ema50)
     pcScore += 30;
@@ -135,7 +129,7 @@ function analyzeStock() {
   if (rsi >= 50 && rsi <= 60)
     pcScore += 30;
 
-  // RB SCORE
+  // RB
 
   if (emaCompressed)
     rbScore += 40;
@@ -146,14 +140,12 @@ function analyzeStock() {
   if (nearEMA20)
     rbScore += 30;
 
-  // =====================================
+  // ==============================
   // SETUP ENGINE
-  // =====================================
+  // ==============================
 
   let setup = "None";
   let setupScore = 0;
-
-  // RB PRIORITY
 
   if (
     emaCompressed &&
@@ -166,8 +158,6 @@ function analyzeStock() {
 
   }
 
-  // PC PRIORITY
-
   else if (
     nearEMA20 &&
     ema20 > ema50
@@ -177,8 +167,6 @@ function analyzeStock() {
     setupScore = pcScore;
 
   }
-
-  // CB PRIORITY
 
   else if (
     ltp > ema20 &&
@@ -193,9 +181,9 @@ function analyzeStock() {
   const resultContent =
     document.getElementById("resultContent");
 
-  // =====================================
-  // ACTIVE TRADE FOLLOW-UP ENGINE
-  // =====================================
+  // ==============================
+  // ACTIVE TRADE ENGINE
+  // ==============================
 
   if (mode === "active") {
 
@@ -238,9 +226,7 @@ function analyzeStock() {
 
     let managementPlan = "";
 
-    // =====================================
     // FULL EXIT
-    // =====================================
 
     if (
       ltp <= currentSL ||
@@ -284,9 +270,7 @@ function analyzeStock() {
 
     }
 
-    // =====================================
     // PARTIAL EXIT
-    // =====================================
 
     else if (
       ltp >= currentTarget * 0.95 &&
@@ -336,9 +320,7 @@ function analyzeStock() {
 
     }
 
-    // =====================================
-    // TRAIL STOP LOSS
-    // =====================================
+    // TRAIL SL
 
     else if (
       ltp >= executedEntry * 1.05 &&
@@ -381,10 +363,6 @@ function analyzeStock() {
       `;
 
     }
-
-    // =====================================
-    // ACTIVE TRADE RESULT
-    // =====================================
 
     resultContent.innerHTML = `
 
@@ -454,15 +432,13 @@ function analyzeStock() {
 
   }
 
-  // =====================================
-  // NORMAL SCAN + WATCHLIST ENGINE
-  // =====================================
+  // ==============================
+  // NEW SCAN + WATCHLIST ENGINE
+  // ==============================
 
   let verdict = "AVOID";
   let priority = "Low";
   let reason = "Weak structure";
-
-  // OVEREXTENDED
 
   if (
     (timeframe === "Daily" &&
@@ -477,8 +453,6 @@ function analyzeStock() {
 
   }
 
-  // CB
-
   else if (setup === "CB") {
 
     if (
@@ -488,7 +462,6 @@ function analyzeStock() {
 
       verdict = "BUY";
       priority = "High";
-
       reason =
         "Strong continuation breakout";
 
@@ -498,15 +471,12 @@ function analyzeStock() {
 
       verdict = "WATCH";
       priority = "Medium";
-
       reason =
         "Breakout setup forming";
 
     }
 
   }
-
-  // PC
 
   else if (setup === "PC") {
 
@@ -517,7 +487,6 @@ function analyzeStock() {
 
       verdict = "BUY";
       priority = "High";
-
       reason =
         "Pullback continuation confirmed";
 
@@ -527,7 +496,6 @@ function analyzeStock() {
 
       verdict = "WATCH";
       priority = "Medium";
-
       reason =
         "Setup forming, monitor closely";
 
@@ -535,13 +503,10 @@ function analyzeStock() {
 
   }
 
-  // RB
-
   else if (setup === "RB") {
 
     verdict = "WATCH";
     priority = "Medium";
-
     reason =
       "Range breakout developing";
 
@@ -555,9 +520,9 @@ function analyzeStock() {
   if (verdict === "WATCH")
     verdictClass = "watch";
 
-  // =====================================
+  // ==============================
   // TRADE PLAN
-  // =====================================
+  // ==============================
 
   let entryLow;
   let entryHigh;
@@ -601,10 +566,6 @@ function analyzeStock() {
   target =
     entryHigh +
     (2 * risk);
-
-  // =====================================
-  // RESULT SECTION
-  // =====================================
 
   resultContent.innerHTML = `
 
@@ -717,10 +678,6 @@ function analyzeStock() {
     }
 
   `;
-
-  // =====================================
-  // POSITION SIZE
-  // =====================================
 
   if (verdict === "BUY") {
 
