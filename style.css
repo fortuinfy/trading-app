@@ -46,7 +46,7 @@ body {
 
 .app-header h1 {
 
-  font-size: 36px;
+  font-size: 38px;
 
   color: #111827;
 
@@ -149,9 +149,9 @@ body {
 .input-group input,
 .input-group select {
 
-  padding: 12px;
+  padding: 14px;
 
-  border-radius: 10px;
+  border-radius: 12px;
 
   border: 1px solid #d1d5db;
 
@@ -161,15 +161,17 @@ body {
 
   transition: 0.2s;
 
+  background: white;
+
 }
 
 .input-group input:focus,
 .input-group select:focus {
 
-  border-color: #2563eb;
+  border-color: #16a34a;
 
   box-shadow:
-    0 0 0 3px rgba(37,99,235,0.15);
+    0 0 0 3px rgba(22,163,74,0.15);
 
 }
 
@@ -284,7 +286,7 @@ body {
 
 input:checked + .slider {
 
-  background-color: #2563eb;
+  background-color: #16a34a;
 
 }
 
@@ -302,9 +304,9 @@ input:checked + .slider:before {
 
   margin-bottom: 30px;
 
-  padding: 20px;
+  padding: 22px;
 
-  border-radius: 14px;
+  border-radius: 16px;
 
   background: #f9fafb;
 
@@ -359,17 +361,20 @@ input:checked + .slider:before {
   border: none;
 
   padding:
-    16px 40px;
+    18px 48px;
 
-  border-radius: 12px;
+  border-radius: 14px;
 
-  font-size: 18px;
+  font-size: 20px;
 
-  font-weight: 600;
+  font-weight: 700;
 
   cursor: pointer;
 
   transition: 0.3s;
+
+  box-shadow:
+    0 6px 18px rgba(22,163,74,0.25);
 
 }
 
@@ -377,7 +382,7 @@ input:checked + .slider:before {
 
   background: #15803d;
 
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 
 }
 
@@ -406,9 +411,9 @@ input:checked + .slider:before {
 
   background: #f9fafb;
 
-  border-radius: 14px;
+  border-radius: 16px;
 
-  padding: 18px;
+  padding: 20px;
 
   border: 1px solid #e5e7eb;
 
@@ -549,7 +554,7 @@ input:checked + .slider:before {
   padding:
     14px 28px;
 
-  border-radius: 10px;
+  border-radius: 12px;
 
   cursor: pointer;
 
@@ -591,7 +596,7 @@ input:checked + .slider:before {
 
   margin-top: 25px;
 
-  padding: 20px;
+  padding: 22px;
 
   background: #fff7ed;
 
@@ -633,7 +638,7 @@ input:checked + .slider:before {
 
   margin-top: 25px;
 
-  padding: 20px;
+  padding: 22px;
 
   background: #f5f3ff;
 
