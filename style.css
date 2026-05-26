@@ -352,7 +352,7 @@ input:checked + .slider:before {
 
 .analyze-btn {
 
-  background: #2563eb;
+  background: #16a34a;
 
   color: white;
 
@@ -375,7 +375,7 @@ input:checked + .slider:before {
 
 .analyze-btn:hover {
 
-  background: #1d4ed8;
+  background: #15803d;
 
   transform: translateY(-2px);
 
