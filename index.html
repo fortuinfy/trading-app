@@ -10,7 +10,9 @@
     content="width=device-width, initial-scale=1.0"
   />
 
-  <title>Trading Setup Analyzer</title>
+  <title>
+    Trading Setup Analyzer
+  </title>
 
   <link
     rel="stylesheet"
@@ -23,7 +25,9 @@
 
   <div class="container">
 
-    <!-- HEADER -->
+    <!-- =========================
+         HEADER
+    ========================== -->
 
     <header class="app-header">
 
@@ -37,7 +41,9 @@
 
     </header>
 
-    <!-- MODE SELECTION -->
+    <!-- =========================
+         MODE SELECTION
+    ========================== -->
 
     <section class="card">
 
@@ -50,6 +56,8 @@
       </div>
 
       <div class="input-grid">
+
+        <!-- MODE -->
 
         <div class="input-group">
 
@@ -78,6 +86,8 @@
 
         </div>
 
+        <!-- STOCK -->
+
         <div class="input-group">
 
           <label>
@@ -91,6 +101,8 @@
           />
 
         </div>
+
+        <!-- TIMEFRAME -->
 
         <div class="input-group">
 
@@ -116,7 +128,9 @@
 
     </section>
 
-    <!-- BASIC INPUTS -->
+    <!-- =========================
+         BASIC INPUTS
+    ========================== -->
 
     <section class="card">
 
@@ -129,6 +143,8 @@
       </div>
 
       <div class="input-grid">
+
+        <!-- LTP -->
 
         <div class="input-group">
 
@@ -144,6 +160,8 @@
 
         </div>
 
+        <!-- EMA20 -->
+
         <div class="input-group">
 
           <label>
@@ -158,6 +176,8 @@
 
         </div>
 
+        <!-- EMA50 -->
+
         <div class="input-group">
 
           <label>
@@ -171,6 +191,8 @@
           />
 
         </div>
+
+        <!-- RSI -->
 
         <div class="input-group">
 
@@ -190,7 +212,9 @@
 
     </section>
 
-    <!-- WATCHLIST MODE INPUTS -->
+    <!-- =========================
+         WATCHLIST FIELDS
+    ========================== -->
 
     <section
       class="card hidden"
@@ -239,7 +263,9 @@
 
     </section>
 
-    <!-- ACTIVE TRADE MODE INPUTS -->
+    <!-- =========================
+         ACTIVE TRADE FIELDS
+    ========================== -->
 
     <section
       class="card hidden"
@@ -316,7 +342,9 @@
 
     </section>
 
-    <!-- ADVANCED CANDLE ANALYSIS -->
+    <!-- =========================
+         ADVANCED ANALYSIS
+    ========================== -->
 
     <section class="card">
 
@@ -353,7 +381,9 @@
 
     </section>
 
-    <!-- ADVANCED CANDLE INPUTS -->
+    <!-- =========================
+         ADVANCED SECTION
+    ========================== -->
 
     <section
       class="card hidden"
@@ -372,313 +402,9 @@
 
       </div>
 
-      <!-- CANDLE 1 -->
+      <!-- CANDLE BLOCKS -->
 
-      <div class="candle-block">
-
-        <h3>
-          Most Recent Candle
-        </h3>
-
-        <div class="input-grid">
-
-          <div class="input-group">
-
-            <label>
-              Closing Price
-            </label>
-
-            <input
-              type="number"
-              id="close1"
-              placeholder="Close Price"
-            />
-
-          </div>
-
-          <div class="input-group">
-
-            <label>
-              Candle Nature
-            </label>
-
-            <select id="nature1">
-
-              <option value="Bullish">
-                Bullish
-              </option>
-
-              <option value="Bearish">
-                Bearish
-              </option>
-
-            </select>
-
-          </div>
-
-          <div class="input-group">
-
-            <label>
-              Volume
-            </label>
-
-            <input
-              type="text"
-              id="volume1"
-              placeholder="10L / 15M / 1Cr"
-            />
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- CANDLE 2 -->
-
-      <div class="candle-block">
-
-        <h3>
-          Previous Candle
-        </h3>
-
-        <div class="input-grid">
-
-          <div class="input-group">
-
-            <label>
-              Closing Price
-            </label>
-
-            <input
-              type="number"
-              id="close2"
-              placeholder="Close Price"
-            />
-
-          </div>
-
-          <div class="input-group">
-
-            <label>
-              Candle Nature
-            </label>
-
-            <select id="nature2">
-
-              <option value="Bullish">
-                Bullish
-              </option>
-
-              <option value="Bearish">
-                Bearish
-              </option>
-
-            </select>
-
-          </div>
-
-          <div class="input-group">
-
-            <label>
-              Volume
-            </label>
-
-            <input
-              type="text"
-              id="volume2"
-              placeholder="10L / 15M / 1Cr"
-            />
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- CANDLE 3 -->
-
-      <div class="candle-block">
-
-        <h3>
-          2 Candles Ago
-        </h3>
-
-        <div class="input-grid">
-
-          <div class="input-group">
-
-            <label>
-              Closing Price
-            </label>
-
-            <input
-              type="number"
-              id="close3"
-              placeholder="Close Price"
-            />
-
-          </div>
-
-          <div class="input-group">
-
-            <label>
-              Candle Nature
-            </label>
-
-            <select id="nature3">
-
-              <option value="Bullish">
-                Bullish
-              </option>
-
-              <option value="Bearish">
-                Bearish
-              </option>
-
-            </select>
-
-          </div>
-
-          <div class="input-group">
-
-            <label>
-              Volume
-            </label>
-
-            <input
-              type="text"
-              id="volume3"
-              placeholder="10L / 15M / 1Cr"
-            />
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- CANDLE 4 -->
-
-      <div class="candle-block">
-
-        <h3>
-          3 Candles Ago
-        </h3>
-
-        <div class="input-grid">
-
-          <div class="input-group">
-
-            <label>
-              Closing Price
-            </label>
-
-            <input
-              type="number"
-              id="close4"
-              placeholder="Close Price"
-            />
-
-          </div>
-
-          <div class="input-group">
-
-            <label>
-              Candle Nature
-            </label>
-
-            <select id="nature4">
-
-              <option value="Bullish">
-                Bullish
-              </option>
-
-              <option value="Bearish">
-                Bearish
-              </option>
-
-            </select>
-
-          </div>
-
-          <div class="input-group">
-
-            <label>
-              Volume
-            </label>
-
-            <input
-              type="text"
-              id="volume4"
-              placeholder="10L / 15M / 1Cr"
-            />
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- CANDLE 5 -->
-
-      <div class="candle-block">
-
-        <h3>
-          4 Candles Ago
-        </h3>
-
-        <div class="input-grid">
-
-          <div class="input-group">
-
-            <label>
-              Closing Price
-            </label>
-
-            <input
-              type="number"
-              id="close5"
-              placeholder="Close Price"
-            />
-
-          </div>
-
-          <div class="input-group">
-
-            <label>
-              Candle Nature
-            </label>
-
-            <select id="nature5">
-
-              <option value="Bullish">
-                Bullish
-              </option>
-
-              <option value="Bearish">
-                Bearish
-              </option>
-
-            </select>
-
-          </div>
-
-          <div class="input-group">
-
-            <label>
-              Volume
-            </label>
-
-            <input
-              type="text"
-              id="volume5"
-              placeholder="10L / 15M / 1Cr"
-            />
-
-          </div>
-
-        </div>
+      <div id="candleContainer">
 
       </div>
 
@@ -691,7 +417,9 @@
 
     </section>
 
-    <!-- ANALYZE BUTTON -->
+    <!-- =========================
+         ANALYZE BUTTON
+    ========================== -->
 
     <section class="analyze-section">
 
@@ -706,7 +434,9 @@
 
     </section>
 
-    <!-- RESULTS -->
+    <!-- =========================
+         RESULT CARD
+    ========================== -->
 
     <section
       class="card hidden"
@@ -728,6 +458,36 @@
     </section>
 
   </div>
+
+  <!-- =========================
+       CONFIG
+  ========================== -->
+
+  <script src="config/config.js"></script>
+
+  <!-- =========================
+       UTILITIES
+  ========================== -->
+
+  <script src="utils/volumeParser.js"></script>
+
+  <!-- =========================
+       ENGINES
+  ========================== -->
+
+  <script src="engine/setupEngine.js"></script>
+
+  <script src="engine/momentumEngine.js"></script>
+
+  <script src="engine/verdictEngine.js"></script>
+
+  <script src="engine/reasoningEngine.js"></script>
+
+  <script src="engine/tradeManagementEngine.js"></script>
+
+  <!-- =========================
+       MAIN CONTROLLER
+  ========================== -->
 
   <script src="script.js"></script>
 
