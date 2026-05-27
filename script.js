@@ -1,7 +1,13 @@
+// =========================
+// MODE FIELD TOGGLER
+// =========================
+
 function toggleModeFields() {
 
   const mode =
     document.getElementById("mode").value;
+
+  // Hide all
 
   document
     .getElementById("watchlistFields")
@@ -11,6 +17,8 @@ function toggleModeFields() {
     .getElementById("activeFields")
     .classList.add("hidden");
 
+  // Watchlist
+
   if (mode === "watchlist") {
 
     document
@@ -18,6 +26,8 @@ function toggleModeFields() {
       .classList.remove("hidden");
 
   }
+
+  // Active Trade
 
   if (mode === "active") {
 
@@ -29,111 +39,59 @@ function toggleModeFields() {
 
 }
 
+// =========================
+// ADVANCED TOGGLE
+// =========================
+
 function toggleAdvancedSection() {
 
   const toggle =
-    document.getElementById("advancedToggle");
+    document.getElementById(
+      "advancedToggle"
+    );
 
-  const advancedSection =
-    document.getElementById("advancedSection");
+  const section =
+    document.getElementById(
+      "advancedSection"
+    );
 
   if (toggle.checked) {
 
-    advancedSection.classList.remove("hidden");
+    section.classList.remove(
+      "hidden"
+    );
 
   }
 
   else {
 
-    advancedSection.classList.add("hidden");
+    section.classList.add(
+      "hidden"
+    );
 
   }
 
 }
 
-window.onload = function () {
+// =========================
+// INITIAL LOAD
+// =========================
+
+window.onload = function() {
 
   toggleModeFields();
 
 };
 
-/* =========================
-   VOLUME PARSER
-========================= */
-
-function parseVolume(volumeText) {
-
-  if (!volumeText)
-    return 0;
-
-  let value =
-    volumeText
-      .toString()
-      .trim()
-      .toUpperCase();
-
-  value =
-    value.replace(/\s+/g, "");
-
-  if (value.includes("CR")) {
-
-    return (
-      parseFloat(
-        value.replace("CR", "")
-      ) * 10000000
-    );
-
-  }
-
-  if (value.includes("L")) {
-
-    return (
-      parseFloat(
-        value.replace("L", "")
-      ) * 100000
-    );
-
-  }
-
-  if (value.includes("M")) {
-
-    return (
-      parseFloat(
-        value.replace("M", "")
-      ) * 1000000
-    );
-
-  }
-
-  if (value.includes("K")) {
-
-    return (
-      parseFloat(
-        value.replace("K", "")
-      ) * 1000
-    );
-
-  }
-
-  if (value.includes("B")) {
-
-    return (
-      parseFloat(
-        value.replace("B", "")
-      ) * 1000000000
-    );
-
-  }
-
-  return parseFloat(value);
-
-}
-
-/* =========================
-   ANALYZE STOCK
-========================= */
+// =========================
+// ANALYZE STOCK
+// =========================
 
 function analyzeStock() {
+
+  // =========================
+  // BASIC INPUTS
+  // =========================
 
   const mode =
     document.getElementById("mode").value;
@@ -164,777 +122,323 @@ function analyzeStock() {
       document.getElementById("rsi").value
     );
 
+  // =========================
+  // VALIDATION
+  // =========================
+
   if (
+
     !stockName ||
     isNaN(ltp) ||
     isNaN(ema20) ||
     isNaN(ema50) ||
     isNaN(rsi)
+
   ) {
 
-    alert("Please fill all mandatory fields.");
+    alert(
+      "Please fill all mandatory fields."
+    );
 
     return;
 
   }
 
-  /* =========================
-     BASIC ENGINE
-  ========================= */
-
-  const tolerance =
-    timeframe === "Daily"
-      ? 0.02
-      : 0.005;
-
-  const distance =
-    Math.abs(
-      (ltp - ema20) / ema20
-    );
-
-  const emaGap =
-    Math.abs(
-      ((ema20 - ema50) / ema50) * 100
-    );
-
-  const nearEMA20 =
-    distance <= tolerance;
-
-  const emaCompressed =
-    emaGap <= 0.5;
-
-  /* =========================
-     SETUP SCORES
-  ========================= */
-
-  let cbScore = 0;
-  let pcScore = 0;
-  let rbScore = 0;
-
-  /* CB */
-
-  if (ltp > ema20)
-    cbScore += 25;
-
-  if (ema20 > ema50)
-    cbScore += 25;
-
-  if (emaGap >= 0.5)
-    cbScore += 25;
-
-  if (rsi >= 55 && rsi <= 70)
-    cbScore += 25;
-
-  /* PC */
-
-  if (ema20 > ema50)
-    pcScore += 30;
-
-  if (nearEMA20)
-    pcScore += 40;
-
-  if (rsi >= 50 && rsi <= 60)
-    pcScore += 30;
-
-  /* RB */
-
-  if (emaCompressed)
-    rbScore += 40;
-
-  if (rsi >= 45 && rsi <= 55)
-    rbScore += 30;
-
-  if (nearEMA20)
-    rbScore += 30;
-
-  /* =========================
-     SETUP DETECTION
-  ========================= */
-
-  let setup = "None";
-  let setupScore = 0;
-
-  if (
-    emaCompressed &&
-    rsi >= 45 &&
-    rsi <= 55
-  ) {
-
-    setup = "RB";
-    setupScore = rbScore;
-
-  }
-
-  else if (
-    nearEMA20 &&
-    ema20 > ema50
-  ) {
-
-    setup = "PC";
-    setupScore = pcScore;
-
-  }
-
-  else if (
-    ltp > ema20 &&
-    ema20 > ema50
-  ) {
-
-    setup = "CB";
-    setupScore = cbScore;
-
-  }
-
-  /* =========================
-     ADVANCED CANDLE ENGINE
-  ========================= */
+  // =========================
+  // ADVANCED MODE
+  // =========================
 
   const advancedEnabled =
+
     document.getElementById(
       "advancedToggle"
     ).checked;
 
-  let momentumScore = 0;
+  // =========================
+  // SETUP ENGINE
+  // =========================
 
-  let relativeVolumeStatus =
-    "Not Enabled";
+  const setupData =
 
-  let momentumTrend =
-    "Basic Engine Only";
+    calculateSetupScores({
 
-  let participationTrend =
-    "Basic Engine Only";
+      ltp,
+      ema20,
+      ema50,
+      rsi,
+      timeframe
 
-  let weaknessDetected = false;
+    });
 
-  let advancedReasons = [];
+  // =========================
+  // MOMENTUM ENGINE
+  // =========================
+
+  let momentumData = {
+
+    momentumScore: 0,
+
+    relativeVolume: 0,
+
+    relativeVolumeStatus:
+      "Not Enabled",
+
+    momentumTrend:
+      "Basic Engine Only",
+
+    participationTrend:
+      "Basic Engine Only",
+
+    weaknessDetected: false,
+
+    advancedReasons: []
+
+  };
 
   if (advancedEnabled) {
 
-    const close1 =
-      parseFloat(
-        document.getElementById("close1").value
-      );
+    const candles = [
 
-    const close2 =
-      parseFloat(
-        document.getElementById("close2").value
-      );
+      {
 
-    const close3 =
-      parseFloat(
-        document.getElementById("close3").value
-      );
+        close: parseFloat(
+          document.getElementById("close1").value
+        ),
 
-    const close4 =
-      parseFloat(
-        document.getElementById("close4").value
-      );
+        nature:
+          document.getElementById("nature1").value,
 
-    const close5 =
-      parseFloat(
-        document.getElementById("close5").value
-      );
+        volume:
+          parseVolume(
+            document.getElementById("volume1").value
+          )
 
-    const nature1 =
-      document.getElementById("nature1").value;
+      },
 
-    const nature2 =
-      document.getElementById("nature2").value;
+      {
 
-    const nature3 =
-      document.getElementById("nature3").value;
+        close: parseFloat(
+          document.getElementById("close2").value
+        ),
 
-    const nature4 =
-      document.getElementById("nature4").value;
+        nature:
+          document.getElementById("nature2").value,
 
-    const nature5 =
-      document.getElementById("nature5").value;
+        volume:
+          parseVolume(
+            document.getElementById("volume2").value
+          )
 
-    const volume1 =
-      parseVolume(
-        document.getElementById("volume1").value
-      );
+      },
 
-    const volume2 =
-      parseVolume(
-        document.getElementById("volume2").value
-      );
+      {
 
-    const volume3 =
-      parseVolume(
-        document.getElementById("volume3").value
-      );
+        close: parseFloat(
+          document.getElementById("close3").value
+        ),
 
-    const volume4 =
-      parseVolume(
-        document.getElementById("volume4").value
-      );
+        nature:
+          document.getElementById("nature3").value,
 
-    const volume5 =
-      parseVolume(
-        document.getElementById("volume5").value
-      );
+        volume:
+          parseVolume(
+            document.getElementById("volume3").value
+          )
 
-    const avgVolume =
-      (
-        volume2 +
-        volume3 +
-        volume4 +
-        volume5
-      ) / 4;
+      },
 
-    const relativeVolume =
-      volume1 / avgVolume;
+      {
 
-    /* Relative Volume */
+        close: parseFloat(
+          document.getElementById("close4").value
+        ),
 
-    if (relativeVolume < 0.8) {
+        nature:
+          document.getElementById("nature4").value,
 
-      relativeVolumeStatus = "Low";
+        volume:
+          parseVolume(
+            document.getElementById("volume4").value
+          )
 
-    }
+      },
 
-    else if (
-      relativeVolume >= 0.8 &&
-      relativeVolume <= 1.2
-    ) {
+      {
 
-      relativeVolumeStatus = "Normal";
+        close: parseFloat(
+          document.getElementById("close5").value
+        ),
 
-    }
+        nature:
+          document.getElementById("nature5").value,
 
-    else {
+        volume:
+          parseVolume(
+            document.getElementById("volume5").value
+          )
 
-      relativeVolumeStatus = "High";
+      }
 
-    }
+    ];
 
-    /* Momentum Score */
+    momentumData =
 
-    if (close1 > close2)
-      momentumScore += 10;
+      calculateMomentum({
 
-    if (close2 > close3)
-      momentumScore += 10;
+        advancedEnabled,
+        candles
 
-    if (close3 > close4)
-      momentumScore += 10;
-
-    if (close4 > close5)
-      momentumScore += 10;
-
-    if (nature1 === "Bullish")
-      momentumScore += 10;
-
-    if (nature2 === "Bullish")
-      momentumScore += 10;
-
-    if (relativeVolumeStatus === "High")
-      momentumScore += 20;
-
-    if (
-      volume1 > volume2 &&
-      volume2 > volume3
-    ) {
-
-      momentumScore += 20;
-
-    }
-
-    /* Momentum Trend */
-
-    if (momentumScore >= 70) {
-
-      momentumTrend =
-        "Strong Bullish Momentum";
-
-    }
-
-    else if (momentumScore >= 50) {
-
-      momentumTrend =
-        "Moderate Momentum";
-
-    }
-
-    else {
-
-      momentumTrend =
-        "Weak Momentum";
-
-    }
-
-    /* Participation Trend */
-
-    if (
-      relativeVolumeStatus === "High"
-    ) {
-
-      participationTrend =
-        "Strong Participation";
-
-    }
-
-    else if (
-      relativeVolumeStatus === "Normal"
-    ) {
-
-      participationTrend =
-        "Stable Participation";
-
-    }
-
-    else {
-
-      participationTrend =
-        "Weak Participation";
-
-    }
-
-    /* Weakness Detection */
-
-    if (
-      nature1 === "Bearish" &&
-      nature2 === "Bearish"
-    ) {
-
-      weaknessDetected = true;
-
-      advancedReasons.push(
-        "Consecutive bearish candles detected."
-      );
-
-    }
-
-    if (
-      close1 < close2 &&
-      close2 < close3
-    ) {
-
-      weaknessDetected = true;
-
-      advancedReasons.push(
-        "Recent candle closes weakening."
-      );
-
-    }
-
-    if (
-      relativeVolumeStatus === "Low"
-    ) {
-
-      weaknessDetected = true;
-
-      advancedReasons.push(
-        "Participation volume remains weak."
-      );
-
-    }
+      });
 
   }
 
-  /* =========================
-     RESULT ENGINE
-  ========================= */
+  // =========================
+  // VERDICT ENGINE
+  // =========================
 
-  const resultContent =
-    document.getElementById("resultContent");
+  const verdictData =
 
-  let verdict = "AVOID";
-  let priority = "Low";
+    generateVerdict({
 
-  let reasonList = [];
+      ...setupData,
 
-  /* OVEREXTENDED */
+      ...momentumData,
 
-  if (
+      ltp,
+      ema20,
+      ema50,
+      rsi,
+      timeframe,
 
-    (timeframe === "Daily" &&
-      distance > 0.05)
+      advancedEnabled
 
-    ||
+    });
 
-    (timeframe === "15 Min" &&
-      distance > 0.01)
+  // =========================
+  // REASON ENGINE
+  // =========================
 
-  ) {
+  const reasons =
 
-    verdict = "AVOID";
+    generateReasons({
 
-    reasonList.push(
-      "Price excessively extended above EMA20."
-    );
+      ...setupData,
 
-  }
+      ...momentumData,
 
-  /* CB */
+      ...verdictData,
 
-  else if (setup === "CB") {
+      ltp,
+      ema20,
+      ema50,
+      rsi,
 
-    if (
+      advancedEnabled
 
-      cbScore >= 75 &&
-      rsi >= 58
+    });
 
-    ) {
-
-      verdict = "BUY";
-      priority = "High";
-
-      reasonList.push(
-        "Strong EMA continuation structure detected."
-      );
-
-      reasonList.push(
-        "RSI confirms bullish momentum."
-      );
-
-    }
-
-    else {
-
-      verdict = "WATCH";
-      priority = "Medium";
-
-      reasonList.push(
-        "Breakout structure developing."
-      );
-
-    }
-
-  }
-
-  /* PC */
-
-  else if (setup === "PC") {
-
-    if (
-
-      pcScore >= 100 &&
-      rsi >= 58
-
-    ) {
-
-      verdict = "BUY";
-      priority = "High";
-
-      reasonList.push(
-        "Healthy pullback continuation detected."
-      );
-
-    }
-
-    else {
-
-      verdict = "WATCH";
-      priority = "Medium";
-
-      reasonList.push(
-        "Pullback setup still developing."
-      );
-
-    }
-
-  }
-
-  /* RB */
-
-  else if (setup === "RB") {
-
-    verdict = "WATCH";
-    priority = "Medium";
-
-    reasonList.push(
-      "Range breakout structure forming."
-    );
-
-  }
-
-  /* =========================
-     ADVANCED VERDICT REFINEMENT
-  ========================= */
-
-  if (advancedEnabled) {
-
-    if (
-      weaknessDetected &&
-      verdict === "BUY"
-    ) {
-
-      verdict = "WATCH";
-
-      priority = "Medium";
-
-      reasonList.push(
-        "Advanced candle analysis downgraded BUY due to weakness."
-      );
-
-    }
-
-    if (
-      momentumScore >= 70
-    ) {
-
-      reasonList.push(
-        "Momentum score confirms strong bullish participation."
-      );
-
-    }
-
-    else if (
-      momentumScore < 50
-    ) {
-
-      reasonList.push(
-        "Momentum score indicates weak continuation strength."
-      );
-
-    }
-
-  }
-
-  /* =========================
-     ACTIVE TRADE ENGINE
-  ========================= */
+  // =========================
+  // ACTIVE TRADE MODE
+  // =========================
 
   if (mode === "active") {
 
-    const executedEntry =
-      parseFloat(
-        document.getElementById("executedEntry").value
-      );
+    handleActiveTradeMode({
 
-    const currentSL =
-      parseFloat(
-        document.getElementById("currentSL").value
-      );
+      ...setupData,
 
-    const currentTarget =
-      parseFloat(
-        document.getElementById("currentTarget").value
-      );
+      ...momentumData,
 
-    const quantity =
-      parseFloat(
-        document.getElementById("quantityTraded").value
-      );
+      ...verdictData,
 
-    let tradeVerdict =
-      "Continue Holding";
+      reasons,
 
-    let tradeReasons = [];
+      ltp,
+      ema20,
+      ema50,
+      rsi
 
-    let managementPlan = "";
-
-    /* FULL EXIT */
-
-    if (
-
-      ltp <= currentSL ||
-      ltp < ema20 ||
-      rsi < 45 ||
-      ema20 < ema50
-
-    ) {
-
-      tradeVerdict = "Full Exit";
-
-      tradeReasons.push(
-        "Trend structure weakening."
-      );
-
-      tradeReasons.push(
-        "Capital protection prioritized."
-      );
-
-      managementPlan = `
-
-        <div class="trade-plan">
-
-          <h3>Exit Plan</h3>
-
-          <div class="result-grid">
-
-            <div class="result-item">
-              <h4>Exit Quantity</h4>
-              <p>${quantity}</p>
-            </div>
-
-            <div class="result-item">
-              <h4>Exit Price</h4>
-              <p>${ltp.toFixed(2)}</p>
-            </div>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }
-
-    /* PARTIAL EXIT */
-
-    else if (
-
-      ltp >= currentTarget * 0.95 &&
-      rsi >= 65
-
-    ) {
-
-      tradeVerdict =
-        "Partial Exit";
-
-      tradeReasons.push(
-        "Price approaching target zone."
-      );
-
-      tradeReasons.push(
-        "Partial profit booking advised."
-      );
-
-      const partialQty =
-        Math.floor(quantity / 2);
-
-      managementPlan = `
-
-        <div class="trade-plan">
-
-          <h3>Partial Exit Plan</h3>
-
-          <div class="result-grid">
-
-            <div class="result-item">
-              <h4>Exit Quantity</h4>
-              <p>${partialQty}</p>
-            </div>
-
-            <div class="result-item">
-              <h4>Hold Quantity</h4>
-              <p>${quantity - partialQty}</p>
-            </div>
-
-            <div class="result-item">
-              <h4>Suggested Trail SL</h4>
-              <p>${ema20.toFixed(2)}</p>
-            </div>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }
-
-    /* TRAIL SL */
-
-    else if (
-
-      ltp >= executedEntry * 1.05 &&
-      rsi >= 55 &&
-      rsi <= 65
-
-    ) {
-
-      tradeVerdict =
-        "Trail Stop Loss";
-
-      tradeReasons.push(
-        "Trade moved favorably."
-      );
-
-      tradeReasons.push(
-        "Protecting profits."
-      );
-
-      managementPlan = `
-
-        <div class="trade-plan">
-
-          <h3>Trail Stop Loss</h3>
-
-          <div class="result-grid">
-
-            <div class="result-item">
-              <h4>Current SL</h4>
-              <p>${currentSL.toFixed(2)}</p>
-            </div>
-
-            <div class="result-item">
-              <h4>Suggested New SL</h4>
-              <p>${ema20.toFixed(2)}</p>
-            </div>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }
-
-    resultContent.innerHTML = `
-
-      <div class="result-grid">
-
-        <div class="result-item">
-          <h4>Detected Setup</h4>
-          <p>${setup}</p>
-        </div>
-
-        <div class="result-item">
-          <h4>Trade Verdict</h4>
-          <p>${tradeVerdict}</p>
-        </div>
-
-        <div class="result-item">
-          <h4>Momentum Score</h4>
-          <p>${momentumScore}/100</p>
-        </div>
-
-        <div class="result-item">
-          <h4>Relative Volume</h4>
-          <p>${relativeVolumeStatus}</p>
-        </div>
-
-      </div>
-
-      <div class="reason-box">
-
-        <h3>
-          Why This Verdict?
-        </h3>
-
-        <ul>
-
-          ${tradeReasons
-            .map(
-              item =>
-                `<li>${item}</li>`
-            )
-            .join("")}
-
-        </ul>
-
-      </div>
-
-      ${managementPlan}
-
-    `;
-
-    document
-      .getElementById("resultCard")
-      .classList.remove("hidden");
+    });
 
     return;
 
   }
 
-  /* =========================
-     TRADE PLAN
-  ========================= */
+  // =========================
+  // NORMAL RESULT RENDER
+  // =========================
+
+  renderNewScanResults({
+
+    stockName,
+    timeframe,
+
+    ...setupData,
+
+    ...momentumData,
+
+    ...verdictData,
+
+    reasons,
+
+    ltp,
+    ema20,
+    ema50,
+    rsi
+
+  });
+
+}
+
+// =========================
+// NEW SCAN RENDERER
+// =========================
+
+function renderNewScanResults(
+  data
+) {
+
+  const {
+
+    setup,
+    setupScore,
+
+    cbScore,
+    pcScore,
+    rbScore,
+
+    verdict,
+    priority,
+
+    momentumScore,
+
+    relativeVolumeStatus,
+    momentumTrend,
+    participationTrend,
+
+    reasons,
+
+    tolerance,
+
+    ltp,
+    ema20,
+    ema50
+
+  } = data;
+
+  const resultCard =
+    document.getElementById(
+      "resultCard"
+    );
+
+  const resultContent =
+    document.getElementById(
+      "resultContent"
+    );
+
+  // =========================
+  // TRADE PLAN
+  // =========================
 
   let entryLow;
   let entryHigh;
@@ -978,9 +482,9 @@ function analyzeStock() {
   target =
     entryHigh + (2 * risk);
 
-  /* =========================
-     VERDICT COLORS
-  ========================= */
+  // =========================
+  // VERDICT CLASS
+  // =========================
 
   let verdictClass = "avoid";
 
@@ -990,9 +494,9 @@ function analyzeStock() {
   if (verdict === "WATCH")
     verdictClass = "watch";
 
-  /* =========================
-     FINAL OUTPUT
-  ========================= */
+  // =========================
+  // HTML OUTPUT
+  // =========================
 
   resultContent.innerHTML = `
 
@@ -1065,14 +569,7 @@ function analyzeStock() {
 
       <ul>
 
-        ${reasonList
-          .map(
-            item =>
-              `<li>${item}</li>`
-          )
-          .join("")}
-
-        ${advancedReasons
+        ${reasons
           .map(
             item =>
               `<li>${item}</li>`
@@ -1151,9 +648,9 @@ function analyzeStock() {
 
   `;
 
-  /* =========================
-     POSITION SIZE
-  ========================= */
+  // =========================
+  // POSITION SIZING
+  // =========================
 
   if (verdict === "BUY") {
 
@@ -1209,15 +706,159 @@ function analyzeStock() {
 
   }
 
-  document
-    .getElementById("resultCard")
-    .classList.remove("hidden");
+  resultCard.classList.remove(
+    "hidden"
+  );
 
 }
 
-/* =========================
-   POSITION SIZE
-========================= */
+// =========================
+// ACTIVE TRADE RENDERER
+// =========================
+
+function handleActiveTradeMode(
+  data
+) {
+
+  const executedEntry =
+    parseFloat(
+      document.getElementById(
+        "executedEntry"
+      ).value
+    );
+
+  const currentSL =
+    parseFloat(
+      document.getElementById(
+        "currentSL"
+      ).value
+    );
+
+  const currentTarget =
+    parseFloat(
+      document.getElementById(
+        "currentTarget"
+      ).value
+    );
+
+  const quantity =
+    parseFloat(
+      document.getElementById(
+        "quantityTraded"
+      ).value
+    );
+
+  const tradeData =
+
+    manageActiveTrade({
+
+      ...data,
+
+      executedEntry,
+      currentSL,
+      currentTarget,
+      quantity
+
+    });
+
+  renderTradeResults({
+
+    ...data,
+
+    ...tradeData
+
+  });
+
+}
+
+// =========================
+// ACTIVE TRADE OUTPUT
+// =========================
+
+function renderTradeResults(
+  data
+) {
+
+  const {
+
+    setup,
+
+    momentumScore,
+
+    relativeVolumeStatus,
+
+    tradeVerdict,
+    tradeReasons,
+    managementPlan
+
+  } = data;
+
+  const resultCard =
+    document.getElementById(
+      "resultCard"
+    );
+
+  const resultContent =
+    document.getElementById(
+      "resultContent"
+    );
+
+  resultContent.innerHTML = `
+
+    <div class="result-grid">
+
+      <div class="result-item">
+        <h4>Detected Setup</h4>
+        <p>${setup}</p>
+      </div>
+
+      <div class="result-item">
+        <h4>Trade Verdict</h4>
+        <p>${tradeVerdict}</p>
+      </div>
+
+      <div class="result-item">
+        <h4>Momentum Score</h4>
+        <p>${momentumScore}/100</p>
+      </div>
+
+      <div class="result-item">
+        <h4>Relative Volume</h4>
+        <p>${relativeVolumeStatus}</p>
+      </div>
+
+    </div>
+
+    <div class="reason-box">
+
+      <h3>
+        Why This Verdict?
+      </h3>
+
+      <ul>
+
+        ${tradeReasons
+          .map(
+            item =>
+              `<li>${item}</li>`
+          )
+          .join("")}
+
+      </ul>
+
+    </div>
+
+  `;
+
+  resultCard.classList.remove(
+    "hidden"
+  );
+
+}
+
+// =========================
+// POSITION SIZING
+// =========================
 
 function calculatePosition(
   entry,
@@ -1226,12 +867,16 @@ function calculatePosition(
 
   const capital =
     parseFloat(
-      document.getElementById("capital").value
+      document.getElementById(
+        "capital"
+      ).value
     );
 
   const riskPercent =
     parseFloat(
-      document.getElementById("riskPercent").value
+      document.getElementById(
+        "riskPercent"
+      ).value
     );
 
   const riskAmount =
@@ -1260,8 +905,11 @@ function calculatePosition(
     document.getElementById(
       "qtyResult"
     ).innerHTML =
+
       "Suggested Quantity: " +
+
       quantity +
+
       " Shares";
 
   }
