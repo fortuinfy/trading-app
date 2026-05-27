@@ -1,4 +1,103 @@
 // =========================
+// DYNAMIC CANDLE RENDERER
+// =========================
+
+function renderCandleInputs() {
+
+  const candleContainer =
+    document.getElementById(
+      "candleContainer"
+    );
+
+  const candleTitles = [
+
+    "Most Recent Candle",
+
+    "Previous Candle",
+
+    "2 Candles Ago",
+
+    "3 Candles Ago",
+
+    "4 Candles Ago"
+
+  ];
+
+  let html = "";
+
+  for (let i = 1; i <= 5; i++) {
+
+    html += `
+
+      <div class="candle-block">
+
+        <h3>
+          ${candleTitles[i - 1]}
+        </h3>
+
+        <div class="input-grid">
+
+          <div class="input-group">
+
+            <label>
+              Closing Price
+            </label>
+
+            <input
+              type="number"
+              id="close${i}"
+              placeholder="Close Price"
+            />
+
+          </div>
+
+          <div class="input-group">
+
+            <label>
+              Candle Nature
+            </label>
+
+            <select id="nature${i}">
+
+              <option value="Bullish">
+                Bullish
+              </option>
+
+              <option value="Bearish">
+                Bearish
+              </option>
+
+            </select>
+
+          </div>
+
+          <div class="input-group">
+
+            <label>
+              Volume
+            </label>
+
+            <input
+              type="text"
+              id="volume${i}"
+              placeholder="10L / 15M / 1Cr"
+            />
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+  candleContainer.innerHTML = html;
+
+}
+
+// =========================
 // MODE FIELD TOGGLER
 // =========================
 
@@ -6,8 +105,6 @@ function toggleModeFields() {
 
   const mode =
     document.getElementById("mode").value;
-
-  // Hide all
 
   document
     .getElementById("watchlistFields")
@@ -17,8 +114,6 @@ function toggleModeFields() {
     .getElementById("activeFields")
     .classList.add("hidden");
 
-  // Watchlist
-
   if (mode === "watchlist") {
 
     document
@@ -26,8 +121,6 @@ function toggleModeFields() {
       .classList.remove("hidden");
 
   }
-
-  // Active Trade
 
   if (mode === "active") {
 
@@ -81,6 +174,8 @@ window.onload = function() {
 
   toggleModeFields();
 
+  renderCandleInputs();
+
 };
 
 // =========================
@@ -88,10 +183,6 @@ window.onload = function() {
 // =========================
 
 function analyzeStock() {
-
-  // =========================
-  // BASIC INPUTS
-  // =========================
 
   const mode =
     document.getElementById("mode").value;
@@ -436,10 +527,6 @@ function renderNewScanResults(
       "resultContent"
     );
 
-  // =========================
-  // TRADE PLAN
-  // =========================
-
   let entryLow;
   let entryHigh;
   let stopLoss;
@@ -482,10 +569,6 @@ function renderNewScanResults(
   target =
     entryHigh + (2 * risk);
 
-  // =========================
-  // VERDICT CLASS
-  // =========================
-
   let verdictClass = "avoid";
 
   if (verdict === "BUY")
@@ -493,10 +576,6 @@ function renderNewScanResults(
 
   if (verdict === "WATCH")
     verdictClass = "watch";
-
-  // =========================
-  // HTML OUTPUT
-  // =========================
 
   resultContent.innerHTML = `
 
@@ -648,10 +727,6 @@ function renderNewScanResults(
 
   `;
 
-  // =========================
-  // POSITION SIZING
-  // =========================
-
   if (verdict === "BUY") {
 
     resultContent.innerHTML += `
@@ -788,8 +863,7 @@ function renderTradeResults(
     relativeVolumeStatus,
 
     tradeVerdict,
-    tradeReasons,
-    managementPlan
+    tradeReasons
 
   } = data;
 
