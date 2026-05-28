@@ -1,364 +1,149 @@
 // =========================
-// VERDICT ENGINE
+// GENERATE VERDICT
 // =========================
 
-window.generateVerdict =
-function(data) {
-
-  // =========================
-  // INPUTS
-  // =========================
+function generateVerdict(data) {
 
   const {
-
-    setup,
-    setupScore,
 
     cbScore,
     pcScore,
     rbScore,
 
-    ltp,
-    ema20,
-    ema50,
-    rsi,
-
-    timeframe,
-
-    distance,
-
     momentumScore,
+
     weaknessDetected,
+
     advancedEnabled
 
   } = data;
 
   // =========================
-  // CONFIG
+  // SETUP DETECTION
   // =========================
 
-  const config =
-    window.APP_CONFIG;
+  let setup = "CB";
 
-  // =========================
-  // TIMEFRAME CONFIG
-  // =========================
+  let highestScore = cbScore;
 
-  const timeframeConfig =
+  if (pcScore > highestScore) {
 
-    timeframe === "Daily"
+    setup = "PC";
 
-      ?
+    highestScore = pcScore;
 
-      config.timeframeSettings.daily
+  }
 
-      :
+  if (rbScore > highestScore) {
 
-      config.timeframeSettings.intraday15m;
+    setup = "RB";
 
-  // =========================
-  // INITIAL VALUES
-  // =========================
-
-  let verdict =
-    config.verdicts.avoid;
-
-  let priority =
-    config.priority.low;
-
-  let reasonList = [];
-
-  // =========================
-  // OVEREXTENDED FILTER
-  // =========================
-
-  if (
-
-    distance >
-    timeframeConfig
-      .overextendedLimit
-
-  ) {
-
-    verdict =
-      config.verdicts.avoid;
-
-    priority =
-      config.priority.low;
-
-    reasonList.push(
-      "Price excessively extended above EMA20."
-    );
-
-    return {
-
-      verdict,
-      priority,
-      reasonList
-
-    };
+    highestScore = rbScore;
 
   }
 
   // =========================
-  // CB VERDICT ENGINE
+  // FINAL SETUP SCORE
   // =========================
 
-  if (setup === "CB") {
-
-    // BUY
-
-    if (
-
-      cbScore >=
-      config.cb.conditions
-        .minimumBuyScore
-
-      &&
-
-      rsi >=
-      config.cb.conditions
-        .rsiBuyMin
-
-    ) {
-
-      verdict =
-        config.verdicts.buy;
-
-      priority =
-        config.priority.high;
-
-      reasonList.push(
-        "Strong EMA continuation structure detected."
-      );
-
-      reasonList.push(
-        "RSI confirms bullish momentum."
-      );
-
-    }
-
-    // WATCH
-
-    else {
-
-      verdict =
-        config.verdicts.watch;
-
-      priority =
-        config.priority.medium;
-
-      reasonList.push(
-        "Breakout structure developing."
-      );
-
-    }
-
-  }
+  let setupScore = highestScore;
 
   // =========================
-  // PC VERDICT ENGINE
-  // =========================
-
-  if (setup === "PC") {
-
-    // BUY
-
-    if (
-
-      pcScore >=
-      config.pc.conditions
-        .minimumBuyScore
-
-      &&
-
-      rsi >=
-      config.pc.conditions
-        .rsiBuyMin
-
-    ) {
-
-      verdict =
-        config.verdicts.buy;
-
-      priority =
-        config.priority.high;
-
-      reasonList.push(
-        "Healthy pullback continuation detected."
-      );
-
-      reasonList.push(
-        "Trend structure remains supportive."
-      );
-
-    }
-
-    // WATCH
-
-    else {
-
-      verdict =
-        config.verdicts.watch;
-
-      priority =
-        config.priority.medium;
-
-      reasonList.push(
-        "Pullback setup still developing."
-      );
-
-    }
-
-  }
-
-  // =========================
-  // RB VERDICT ENGINE
-  // =========================
-
-  if (setup === "RB") {
-
-    // BUY
-
-    if (
-
-      rbScore >=
-      config.rb.conditions
-        .minimumBuyScore
-
-      &&
-
-      momentumScore >=
-      config.momentum.conditions
-        .moderateMomentumScore
-
-    ) {
-
-      verdict =
-        config.verdicts.buy;
-
-      priority =
-        config.priority.high;
-
-      reasonList.push(
-        "Breakout energy building strongly."
-      );
-
-      reasonList.push(
-        "Momentum expansion confirms breakout probability."
-      );
-
-    }
-
-    // WATCH
-
-    else {
-
-      verdict =
-        config.verdicts.watch;
-
-      priority =
-        config.priority.medium;
-
-      reasonList.push(
-        "Range breakout structure forming."
-      );
-
-    }
-
-  }
-
-  // =========================
-  // ADVANCED REFINEMENT
+  // ADVANCED ENGINE IMPACT
   // =========================
 
   if (advancedEnabled) {
 
-    // BUY DOWNGRADE
-
-    if (
-
-      verdict ===
-      config.verdicts.buy
-
-      &&
-
-      weaknessDetected
-
-      &&
-
-      config.weaknessEngine
-        .enableWeakMomentumDowngrade
-
-    ) {
-
-      verdict =
-        config.verdicts.watch;
-
-      priority =
-        config.priority.medium;
-
-      reasonList.push(
-        "Advanced candle analysis downgraded BUY due to weakening momentum."
+    setupScore +=
+      Math.floor(
+        momentumScore * 0.20
       );
-
-    }
-
-    // MOMENTUM CONFIRMATION
-
-    if (
-
-      momentumScore >=
-      config.momentum.conditions
-        .strongMomentumScore
-
-    ) {
-
-      reasonList.push(
-        "Momentum score confirms strong bullish participation."
-      );
-
-    }
-
-    // WEAK MOMENTUM
-
-    if (
-
-      momentumScore <
-      config.momentum.conditions
-        .moderateMomentumScore
-
-    ) {
-
-      reasonList.push(
-        "Momentum score indicates weak continuation strength."
-      );
-
-    }
 
   }
 
   // =========================
-  // EMA STRUCTURE WARNING
+  // WEAKNESS PENALTY
   // =========================
 
-  if (ema20 < ema50) {
+  if (weaknessDetected) {
 
-    reasonList.push(
-      "Trend alignment weakening."
-    );
+    setupScore -= 10;
 
   }
 
   // =========================
-  // LOW RSI WARNING
+  // SCORE LIMITS
   // =========================
 
-  if (rsi < 45) {
+  if (setupScore > 100) {
 
-    reasonList.push(
-      "RSI indicates weak momentum structure."
-    );
+    setupScore = 100;
+
+  }
+
+  if (setupScore < 0) {
+
+    setupScore = 0;
+
+  }
+
+  // =========================
+  // VERDICT GENERATION
+  // =========================
+
+  let verdict = "AVOID";
+
+  let priority = "LOW";
+
+  // =========================
+  // BUY CONDITIONS
+  // =========================
+
+  if (
+
+    setupScore >= 75 &&
+
+    (
+      !advancedEnabled ||
+
+      momentumScore >= 65
+    ) &&
+
+    !weaknessDetected
+
+  ) {
+
+    verdict = "BUY";
+
+    priority = "HIGH";
+
+  }
+
+  // =========================
+  // WATCH CONDITIONS
+  // =========================
+
+  else if (
+
+    setupScore >= 55
+
+  ) {
+
+    verdict = "WATCH";
+
+    priority = "MEDIUM";
+
+  }
+
+  // =========================
+  // AVOID CONDITIONS
+  // =========================
+
+  else {
+
+    verdict = "AVOID";
+
+    priority = "LOW";
 
   }
 
@@ -368,10 +153,14 @@ function(data) {
 
   return {
 
+    setup,
+
+    setupScore,
+
     verdict,
-    priority,
-    reasonList
+
+    priority
 
   };
 
-};
+}
