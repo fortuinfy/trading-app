@@ -1,10 +1,220 @@
 // =========================
+// GLOBAL MODE
+// =========================
+
+let currentMode = "new";
+
+// =========================
+// INITIAL LOAD
+// =========================
+
+window.onload = function() {
+
+  updateTimestamp();
+
+  renderCandleInputs();
+
+  setMode("new");
+
+};
+
+// =========================
+// TIMESTAMP ENGINE
+// =========================
+
+function updateTimestamp() {
+
+  const now = new Date();
+
+  const dateOptions = {
+
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+
+  };
+
+  const timeOptions = {
+
+    hour: "2-digit",
+    minute: "2-digit"
+
+  };
+
+  document.getElementById(
+    "currentDate"
+  ).innerText =
+
+    now.toLocaleDateString(
+      "en-IN",
+      dateOptions
+    );
+
+  document.getElementById(
+    "currentTime"
+  ).innerText =
+
+    now.toLocaleTimeString(
+      "en-IN",
+      timeOptions
+    );
+
+}
+
+// =========================
+// MODE SWITCHER
+// =========================
+
+function setMode(mode) {
+
+  currentMode = mode;
+
+  // =========================
+  // RESET BUTTON STATES
+  // =========================
+
+  document
+    .getElementById("modeNew")
+    .classList.remove("active-mode");
+
+  document
+    .getElementById("modeWatchlist")
+    .classList.remove("active-mode");
+
+  document
+    .getElementById("modeActive")
+    .classList.remove("active-mode");
+
+  // =========================
+  // HIDE ALL MODE SECTIONS
+  // =========================
+
+  document
+    .getElementById("watchlistSection")
+    .classList.add("hidden");
+
+  document
+    .getElementById("activeTradeSection")
+    .classList.add("hidden");
+
+  // =========================
+  // MODE LOGIC
+  // =========================
+
+  if (mode === "new") {
+
+    document
+      .getElementById("modeNew")
+      .classList.add("active-mode");
+
+    document
+      .getElementById("modeTitle")
+      .innerText =
+
+      "New Scan";
+
+    document
+      .getElementById("modeSubtitle")
+      .innerText =
+
+      "Analyze fresh market opportunities";
+
+  }
+
+  else if (mode === "watchlist") {
+
+    document
+      .getElementById("modeWatchlist")
+      .classList.add("active-mode");
+
+    document
+      .getElementById("watchlistSection")
+      .classList.remove("hidden");
+
+    document
+      .getElementById("modeTitle")
+      .innerText =
+
+      "Watchlist Follow-Up";
+
+    document
+      .getElementById("modeSubtitle")
+      .innerText =
+
+      "Review and revalidate shortlisted setups";
+
+  }
+
+  else if (mode === "active") {
+
+    document
+      .getElementById("modeActive")
+      .classList.add("active-mode");
+
+    document
+      .getElementById("activeTradeSection")
+      .classList.remove("hidden");
+
+    document
+      .getElementById("modeTitle")
+      .innerText =
+
+      "Active Trade Follow-Up";
+
+    document
+      .getElementById("modeSubtitle")
+      .innerText =
+
+      "Manage live running positions";
+
+  }
+
+}
+
+// =========================
+// ADVANCED TOGGLE
+// =========================
+
+function toggleAdvancedSection() {
+
+  const toggle =
+
+    document.getElementById(
+      "advancedToggle"
+    );
+
+  const section =
+
+    document.getElementById(
+      "advancedSection"
+    );
+
+  if (toggle.checked) {
+
+    section.classList.remove(
+      "hidden"
+    );
+
+  }
+
+  else {
+
+    section.classList.add(
+      "hidden"
+    );
+
+  }
+
+}
+
+// =========================
 // DYNAMIC CANDLE RENDERER
 // =========================
 
 function renderCandleInputs() {
 
   const candleContainer =
+
     document.getElementById(
       "candleContainer"
     );
@@ -37,6 +247,8 @@ function renderCandleInputs() {
 
         <div class="input-grid">
 
+          <!-- CLOSE -->
+
           <div class="input-group">
 
             <label>
@@ -50,6 +262,8 @@ function renderCandleInputs() {
             />
 
           </div>
+
+          <!-- NATURE -->
 
           <div class="input-group">
 
@@ -70,6 +284,8 @@ function renderCandleInputs() {
             </select>
 
           </div>
+
+          <!-- VOLUME -->
 
           <div class="input-group">
 
@@ -98,85 +314,50 @@ function renderCandleInputs() {
 }
 
 // =========================
-// MODE FIELD TOGGLER
+// RESET ENGINE
 // =========================
 
-function toggleModeFields() {
+function resetAllFields() {
 
-  const mode =
-    document.getElementById("mode").value;
+  const inputs =
+    document.querySelectorAll(
+      "input"
+    );
+
+  inputs.forEach(input => {
+
+    if (
+      input.type !== "checkbox"
+    ) {
+
+      input.value = "";
+
+    }
+
+  });
+
+  const selects =
+    document.querySelectorAll(
+      "select"
+    );
+
+  selects.forEach(select => {
+
+    select.selectedIndex = 0;
+
+  });
+
+  document.getElementById(
+    "advancedToggle"
+  ).checked = false;
+
+  toggleAdvancedSection();
 
   document
-    .getElementById("watchlistFields")
+    .getElementById("resultCard")
     .classList.add("hidden");
 
-  document
-    .getElementById("activeFields")
-    .classList.add("hidden");
-
-  if (mode === "watchlist") {
-
-    document
-      .getElementById("watchlistFields")
-      .classList.remove("hidden");
-
-  }
-
-  if (mode === "active") {
-
-    document
-      .getElementById("activeFields")
-      .classList.remove("hidden");
-
-  }
-
 }
-
-// =========================
-// ADVANCED TOGGLE
-// =========================
-
-function toggleAdvancedSection() {
-
-  const toggle =
-    document.getElementById(
-      "advancedToggle"
-    );
-
-  const section =
-    document.getElementById(
-      "advancedSection"
-    );
-
-  if (toggle.checked) {
-
-    section.classList.remove(
-      "hidden"
-    );
-
-  }
-
-  else {
-
-    section.classList.add(
-      "hidden"
-    );
-
-  }
-
-}
-
-// =========================
-// INITIAL LOAD
-// =========================
-
-window.onload = function() {
-
-  toggleModeFields();
-
-  renderCandleInputs();
-
-};
 
 // =========================
 // ANALYZE STOCK
@@ -184,808 +365,10 @@ window.onload = function() {
 
 function analyzeStock() {
 
-  const mode =
-    document.getElementById("mode").value;
+  alert(
 
-  const stockName =
-    document.getElementById("stockName").value;
+    "Core rendering engine integration will now begin."
 
-  const timeframe =
-    document.getElementById("timeframe").value;
-
-  const ltp =
-    parseFloat(
-      document.getElementById("ltp").value
-    );
-
-  const ema20 =
-    parseFloat(
-      document.getElementById("ema20").value
-    );
-
-  const ema50 =
-    parseFloat(
-      document.getElementById("ema50").value
-    );
-
-  const rsi =
-    parseFloat(
-      document.getElementById("rsi").value
-    );
-
-  // =========================
-  // VALIDATION
-  // =========================
-
-  if (
-
-    !stockName ||
-    isNaN(ltp) ||
-    isNaN(ema20) ||
-    isNaN(ema50) ||
-    isNaN(rsi)
-
-  ) {
-
-    alert(
-      "Please fill all mandatory fields."
-    );
-
-    return;
-
-  }
-
-  // =========================
-  // ADVANCED MODE
-  // =========================
-
-  const advancedEnabled =
-
-    document.getElementById(
-      "advancedToggle"
-    ).checked;
-
-  // =========================
-  // SETUP ENGINE
-  // =========================
-
-  const setupData =
-
-    calculateSetupScores({
-
-      ltp,
-      ema20,
-      ema50,
-      rsi,
-      timeframe
-
-    });
-
-  // =========================
-  // MOMENTUM ENGINE
-  // =========================
-
-  let momentumData = {
-
-    momentumScore: 0,
-
-    relativeVolume: 0,
-
-    relativeVolumeStatus:
-      "Not Enabled",
-
-    momentumTrend:
-      "Basic Engine Only",
-
-    participationTrend:
-      "Basic Engine Only",
-
-    weaknessDetected: false,
-
-    advancedReasons: []
-
-  };
-
-  if (advancedEnabled) {
-
-    const candles = [
-
-      {
-
-        close: parseFloat(
-          document.getElementById("close1").value
-        ),
-
-        nature:
-          document.getElementById("nature1").value,
-
-        volume:
-          parseVolume(
-            document.getElementById("volume1").value
-          )
-
-      },
-
-      {
-
-        close: parseFloat(
-          document.getElementById("close2").value
-        ),
-
-        nature:
-          document.getElementById("nature2").value,
-
-        volume:
-          parseVolume(
-            document.getElementById("volume2").value
-          )
-
-      },
-
-      {
-
-        close: parseFloat(
-          document.getElementById("close3").value
-        ),
-
-        nature:
-          document.getElementById("nature3").value,
-
-        volume:
-          parseVolume(
-            document.getElementById("volume3").value
-          )
-
-      },
-
-      {
-
-        close: parseFloat(
-          document.getElementById("close4").value
-        ),
-
-        nature:
-          document.getElementById("nature4").value,
-
-        volume:
-          parseVolume(
-            document.getElementById("volume4").value
-          )
-
-      },
-
-      {
-
-        close: parseFloat(
-          document.getElementById("close5").value
-        ),
-
-        nature:
-          document.getElementById("nature5").value,
-
-        volume:
-          parseVolume(
-            document.getElementById("volume5").value
-          )
-
-      }
-
-    ];
-
-    momentumData =
-
-      calculateMomentum({
-
-        advancedEnabled,
-        candles
-
-      });
-
-  }
-
-  // =========================
-  // VERDICT ENGINE
-  // =========================
-
-  const verdictData =
-
-    generateVerdict({
-
-      ...setupData,
-
-      ...momentumData,
-
-      ltp,
-      ema20,
-      ema50,
-      rsi,
-      timeframe,
-
-      advancedEnabled
-
-    });
-
-  // =========================
-  // REASON ENGINE
-  // =========================
-
-  const reasons =
-
-    generateReasons({
-
-      ...setupData,
-
-      ...momentumData,
-
-      ...verdictData,
-
-      ltp,
-      ema20,
-      ema50,
-      rsi,
-
-      advancedEnabled
-
-    });
-
-  // =========================
-  // ACTIVE TRADE MODE
-  // =========================
-
-  if (mode === "active") {
-
-    handleActiveTradeMode({
-
-      ...setupData,
-
-      ...momentumData,
-
-      ...verdictData,
-
-      reasons,
-
-      ltp,
-      ema20,
-      ema50,
-      rsi
-
-    });
-
-    return;
-
-  }
-
-  // =========================
-  // NORMAL RESULT RENDER
-  // =========================
-
-  renderNewScanResults({
-
-    stockName,
-    timeframe,
-
-    ...setupData,
-
-    ...momentumData,
-
-    ...verdictData,
-
-    reasons,
-
-    ltp,
-    ema20,
-    ema50,
-    rsi
-
-  });
-
-}
-
-// =========================
-// NEW SCAN RENDERER
-// =========================
-
-function renderNewScanResults(
-  data
-) {
-
-  const {
-
-    setup,
-    setupScore,
-
-    cbScore,
-    pcScore,
-    rbScore,
-
-    verdict,
-    priority,
-
-    momentumScore,
-
-    relativeVolumeStatus,
-    momentumTrend,
-    participationTrend,
-
-    reasons,
-
-    tolerance,
-
-    ltp,
-    ema20,
-    ema50
-
-  } = data;
-
-  const resultCard =
-    document.getElementById(
-      "resultCard"
-    );
-
-  const resultContent =
-    document.getElementById(
-      "resultContent"
-    );
-
-  let entryLow;
-  let entryHigh;
-  let stopLoss;
-  let target;
-
-  if (verdict === "BUY") {
-
-    entryLow = ltp;
-
-    entryHigh =
-      ltp + (ltp * tolerance);
-
-  }
-
-  else {
-
-    entryLow =
-      ema20 -
-      (ema20 * tolerance);
-
-    entryHigh =
-      ema20 +
-      (ema20 * tolerance);
-
-  }
-
-  stopLoss = ema50;
-
-  if (stopLoss >= entryLow) {
-
-    stopLoss =
-      entryLow -
-      (entryLow * 0.02);
-
-  }
-
-  const risk =
-    entryLow - stopLoss;
-
-  target =
-    entryHigh + (2 * risk);
-
-  let verdictClass = "avoid";
-
-  if (verdict === "BUY")
-    verdictClass = "buy";
-
-  if (verdict === "WATCH")
-    verdictClass = "watch";
-
-  resultContent.innerHTML = `
-
-    <div class="result-grid">
-
-      <div class="result-item">
-        <h4>Detected Setup</h4>
-        <p>${setup}</p>
-      </div>
-
-      <div class="result-item">
-        <h4>Setup Score</h4>
-        <p>${setupScore}/100</p>
-      </div>
-
-      <div class="result-item">
-        <h4>Verdict</h4>
-        <p class="${verdictClass}">
-          ${verdict}
-        </p>
-      </div>
-
-      <div class="result-item">
-        <h4>Priority</h4>
-        <p>${priority}</p>
-      </div>
-
-      <div class="result-item">
-        <h4>CB Score</h4>
-        <p>${cbScore}/100</p>
-      </div>
-
-      <div class="result-item">
-        <h4>PC Score</h4>
-        <p>${pcScore}/100</p>
-      </div>
-
-      <div class="result-item">
-        <h4>RB Score</h4>
-        <p>${rbScore}/100</p>
-      </div>
-
-      <div class="result-item">
-        <h4>Momentum Score</h4>
-        <p>${momentumScore}/100</p>
-      </div>
-
-      <div class="result-item">
-        <h4>Relative Volume</h4>
-        <p>${relativeVolumeStatus}</p>
-      </div>
-
-      <div class="result-item">
-        <h4>Momentum Trend</h4>
-        <p>${momentumTrend}</p>
-      </div>
-
-      <div class="result-item">
-        <h4>Participation Trend</h4>
-        <p>${participationTrend}</p>
-      </div>
-
-    </div>
-
-    <div class="reason-box">
-
-      <h3>
-        Why This Verdict?
-      </h3>
-
-      <ul>
-
-        ${reasons
-          .map(
-            item =>
-              `<li>${item}</li>`
-          )
-          .join("")}
-
-      </ul>
-
-    </div>
-
-    ${
-
-      verdict !== "AVOID"
-
-      ?
-
-      `
-
-      <div class="trade-plan">
-
-        <h3>Trade Plan</h3>
-
-        <div class="result-grid">
-
-          <div class="result-item">
-            <h4>Entry Range</h4>
-            <p>
-              ${entryLow.toFixed(2)}
-              -
-              ${entryHigh.toFixed(2)}
-            </p>
-          </div>
-
-          ${
-
-            verdict === "WATCH"
-
-            ?
-
-            `
-
-            <div class="result-item">
-              <h4>Trigger Zone</h4>
-              <p>
-                ${entryHigh.toFixed(2)}
-                -
-                ${(entryHigh * 1.01).toFixed(2)}
-              </p>
-            </div>
-
-            `
-
-            : ""
-
-          }
-
-          <div class="result-item">
-            <h4>Stop Loss</h4>
-            <p>${stopLoss.toFixed(2)}</p>
-          </div>
-
-          <div class="result-item">
-            <h4>Target</h4>
-            <p>${target.toFixed(2)}</p>
-          </div>
-
-        </div>
-
-      </div>
-
-      `
-
-      : ""
-
-    }
-
-  `;
-
-  if (verdict === "BUY") {
-
-    resultContent.innerHTML += `
-
-      <div class="position-box">
-
-        <h3>
-          Position Size Calculator
-        </h3>
-
-        <label>
-          Capital
-        </label>
-
-        <input
-          type="number"
-          id="capital"
-        />
-
-        <label>
-          Risk %
-        </label>
-
-        <input
-          type="number"
-          id="riskPercent"
-          value="1"
-        />
-
-        <button
-          class="calc-btn"
-          onclick="
-            calculatePosition(
-              ${entryLow},
-              ${stopLoss}
-            )
-          "
-        >
-
-          Calculate Quantity
-
-        </button>
-
-        <div
-          class="qty-result"
-          id="qtyResult"
-        ></div>
-
-      </div>
-
-    `;
-
-  }
-
-  resultCard.classList.remove(
-    "hidden"
   );
-
-}
-
-// =========================
-// ACTIVE TRADE RENDERER
-// =========================
-
-function handleActiveTradeMode(
-  data
-) {
-
-  const executedEntry =
-    parseFloat(
-      document.getElementById(
-        "executedEntry"
-      ).value
-    );
-
-  const currentSL =
-    parseFloat(
-      document.getElementById(
-        "currentSL"
-      ).value
-    );
-
-  const currentTarget =
-    parseFloat(
-      document.getElementById(
-        "currentTarget"
-      ).value
-    );
-
-  const quantity =
-    parseFloat(
-      document.getElementById(
-        "quantityTraded"
-      ).value
-    );
-
-  const tradeData =
-
-    manageActiveTrade({
-
-      ...data,
-
-      executedEntry,
-      currentSL,
-      currentTarget,
-      quantity
-
-    });
-
-  renderTradeResults({
-
-    ...data,
-
-    ...tradeData
-
-  });
-
-}
-
-// =========================
-// ACTIVE TRADE OUTPUT
-// =========================
-
-function renderTradeResults(
-  data
-) {
-
-  const {
-
-    setup,
-
-    momentumScore,
-
-    relativeVolumeStatus,
-
-    tradeVerdict,
-    tradeReasons
-
-  } = data;
-
-  const resultCard =
-    document.getElementById(
-      "resultCard"
-    );
-
-  const resultContent =
-    document.getElementById(
-      "resultContent"
-    );
-
-  resultContent.innerHTML = `
-
-    <div class="result-grid">
-
-      <div class="result-item">
-        <h4>Detected Setup</h4>
-        <p>${setup}</p>
-      </div>
-
-      <div class="result-item">
-        <h4>Trade Verdict</h4>
-        <p>${tradeVerdict}</p>
-      </div>
-
-      <div class="result-item">
-        <h4>Momentum Score</h4>
-        <p>${momentumScore}/100</p>
-      </div>
-
-      <div class="result-item">
-        <h4>Relative Volume</h4>
-        <p>${relativeVolumeStatus}</p>
-      </div>
-
-    </div>
-
-    <div class="reason-box">
-
-      <h3>
-        Why This Verdict?
-      </h3>
-
-      <ul>
-
-        ${tradeReasons
-          .map(
-            item =>
-              `<li>${item}</li>`
-          )
-          .join("")}
-
-      </ul>
-
-    </div>
-
-  `;
-
-  resultCard.classList.remove(
-    "hidden"
-  );
-
-}
-
-// =========================
-// POSITION SIZING
-// =========================
-
-function calculatePosition(
-  entry,
-  stopLoss
-) {
-
-  const capital =
-    parseFloat(
-      document.getElementById(
-        "capital"
-      ).value
-    );
-
-  const riskPercent =
-    parseFloat(
-      document.getElementById(
-        "riskPercent"
-      ).value
-    );
-
-  const riskAmount =
-    capital *
-    (riskPercent / 100);
-
-  const riskPerShare =
-    entry - stopLoss;
-
-  const quantity =
-    Math.floor(
-      riskAmount / riskPerShare
-    );
-
-  if (quantity < 1) {
-
-    document.getElementById(
-      "qtyResult"
-    ).innerHTML =
-      "Capital insufficient.";
-
-  }
-
-  else {
-
-    document.getElementById(
-      "qtyResult"
-    ).innerHTML =
-
-      "Suggested Quantity: " +
-
-      quantity +
-
-      " Shares";
-
-  }
 
 }
