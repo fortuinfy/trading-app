@@ -22,10 +22,10 @@ body {
     sans-serif;
 
   background:
-    linear-gradient(
-      180deg,
-      #020617,
-      #0f172a
+    radial-gradient(
+      circle at top,
+      #111827,
+      #020617
     );
 
   color:
@@ -54,7 +54,7 @@ body {
 }
 
 /* =========================
-   TOP HEADER
+   HEADER
 ========================= */
 
 .top-header {
@@ -68,46 +68,42 @@ body {
   align-items:
     center;
 
+  padding:
+    30px;
+
   margin-bottom:
     24px;
 
-  padding:
-    28px;
-
   border-radius:
-    22px;
+    24px;
 
   background:
-    linear-gradient(
-      135deg,
-      rgba(15,23,42,0.95),
-      rgba(30,41,59,0.95)
-    );
+    rgba(15,23,42,0.92);
 
   border:
     1px solid rgba(255,255,255,0.06);
 
-  box-shadow:
-    0 10px 40px rgba(0,0,0,0.35);
-
   backdrop-filter:
-    blur(14px);
+    blur(16px);
+
+  box-shadow:
+    0 14px 40px rgba(0,0,0,0.35);
 
 }
 
 .brand-section h1 {
 
   font-size:
-    38px;
+    40px;
 
   font-weight:
     800;
 
-  color:
-    #f8fafc;
-
   letter-spacing:
     1px;
+
+  color:
+    #f8fafc;
 
   margin-bottom:
     10px;
@@ -155,26 +151,23 @@ body {
     16px;
 
   background:
-    rgba(15,23,42,0.8);
+    rgba(2,6,23,0.8);
 
   border:
-    1px solid rgba(255,255,255,0.06);
+    1px solid rgba(255,255,255,0.05);
 
   color:
     #cbd5e1;
-
-  font-size:
-    14px;
 
 }
 
 .help-btn {
 
   width:
-    44px;
+    46px;
 
   height:
-    44px;
+    46px;
 
   border-radius:
     50%;
@@ -186,7 +179,7 @@ body {
     linear-gradient(
       135deg,
       #2563eb,
-      #1d4ed8
+      #3b82f6
     );
 
   color:
@@ -214,31 +207,31 @@ body {
 }
 
 /* =========================
-   CARD
+   CARDS
 ========================= */
 
 .card {
 
   background:
-    rgba(15,23,42,0.92);
+    rgba(15,23,42,0.94);
 
   border:
-    1px solid rgba(255,255,255,0.06);
+    1px solid rgba(255,255,255,0.05);
 
   border-radius:
-    22px;
+    24px;
 
   padding:
-    26px;
+    28px;
 
   margin-bottom:
     22px;
 
   box-shadow:
-    0 8px 32px rgba(0,0,0,0.25);
+    0 10px 32px rgba(0,0,0,0.28);
 
   backdrop-filter:
-    blur(10px);
+    blur(12px);
 
   transition:
     0.3s;
@@ -251,12 +244,12 @@ body {
     translateY(-2px);
 
   border-color:
-    rgba(59,130,246,0.3);
+    rgba(59,130,246,0.25);
 
 }
 
 /* =========================
-   MODE SELECTOR
+   MODE BUTTONS
 ========================= */
 
 .mode-selector {
@@ -283,11 +276,11 @@ body {
   padding:
     18px;
 
-  border:
-    1px solid rgba(255,255,255,0.05);
-
   border-radius:
     16px;
+
+  border:
+    1px solid rgba(255,255,255,0.05);
 
   background:
     rgba(30,41,59,0.9);
@@ -312,7 +305,7 @@ body {
 .mode-btn:hover {
 
   background:
-    rgba(51,65,85,0.95);
+    rgba(51,65,85,1);
 
 }
 
@@ -329,7 +322,7 @@ body {
     white;
 
   box-shadow:
-    0 8px 24px rgba(37,99,235,0.35);
+    0 10px 26px rgba(37,99,235,0.35);
 
 }
 
@@ -337,20 +330,13 @@ body {
    MODE BANNER
 ========================= */
 
-.mode-banner-card {
-
-  margin-bottom:
-    24px;
-
-}
-
 .mode-banner {
 
   padding:
-    34px;
+    36px;
 
   border-radius:
-    24px;
+    26px;
 
   background:
     linear-gradient(
@@ -364,14 +350,14 @@ body {
     white;
 
   box-shadow:
-    0 12px 36px rgba(37,99,235,0.35);
+    0 16px 36px rgba(37,99,235,0.32);
 
 }
 
 .mode-banner h2 {
 
   font-size:
-    34px;
+    36px;
 
   margin-bottom:
     10px;
@@ -381,21 +367,18 @@ body {
 .mode-banner p {
 
   color:
-    rgba(255,255,255,0.85);
-
-  font-size:
-    15px;
+    rgba(255,255,255,0.88);
 
 }
 
 /* =========================
-   SECTION HEADER
+   SECTION HEADERS
 ========================= */
 
 .section-header {
 
   margin-bottom:
-    22px;
+    24px;
 
 }
 
@@ -404,11 +387,11 @@ body {
   font-size:
     24px;
 
-  margin-bottom:
-    6px;
-
   color:
     #f8fafc;
+
+  margin-bottom:
+    6px;
 
 }
 
@@ -423,7 +406,7 @@ body {
 }
 
 /* =========================
-   INPUT GRID
+   INPUTS
 ========================= */
 
 .input-grid {
@@ -438,10 +421,6 @@ body {
     18px;
 
 }
-
-/* =========================
-   INPUTS
-========================= */
 
 .input-group {
 
@@ -479,7 +458,7 @@ body {
     14px;
 
   border:
-    1px solid rgba(255,255,255,0.08);
+    1px solid rgba(255,255,255,0.06);
 
   background:
     rgba(2,6,23,0.85);
@@ -505,12 +484,12 @@ body {
     #3b82f6;
 
   box-shadow:
-    0 0 0 4px rgba(59,130,246,0.2);
+    0 0 0 4px rgba(59,130,246,0.18);
 
 }
 
 /* =========================
-   ADVANCED TOP
+   ADVANCED TOGGLE
 ========================= */
 
 .advanced-top {
@@ -524,14 +503,7 @@ body {
   align-items:
     center;
 
-  gap:
-    20px;
-
 }
-
-/* =========================
-   SWITCH
-========================= */
 
 .switch {
 
@@ -570,17 +542,14 @@ body {
   inset:
     0;
 
-  cursor:
-    pointer;
-
   background:
     #334155;
 
-  transition:
-    0.4s;
-
   border-radius:
     34px;
+
+  transition:
+    0.4s;
 
 }
 
@@ -639,7 +608,7 @@ input:checked + .slider:before {
     rgba(2,6,23,0.85);
 
   border:
-    1px solid rgba(255,255,255,0.06);
+    1px solid rgba(255,255,255,0.05);
 
   border-radius:
     18px;
@@ -657,13 +626,10 @@ input:checked + .slider:before {
   margin-bottom:
     18px;
 
-  color:
-    #f8fafc;
-
 }
 
 /* =========================
-   ACTION BUTTONS
+   BUTTONS
 ========================= */
 
 .action-section {
@@ -750,7 +716,7 @@ input:checked + .slider:before {
 }
 
 /* =========================
-   RESULT WRAPPER
+   RESULTS
 ========================= */
 
 .result-wrapper {
@@ -759,10 +725,6 @@ input:checked + .slider:before {
     fadeIn 0.4s ease;
 
 }
-
-/* =========================
-   RESULT GRID
-========================= */
 
 .result-grid {
 
@@ -784,16 +746,16 @@ input:checked + .slider:before {
 .result-item {
 
   background:
-    rgba(2,6,23,0.9);
+    rgba(2,6,23,0.88);
 
   border:
-    1px solid rgba(255,255,255,0.06);
+    1px solid rgba(255,255,255,0.05);
 
   border-radius:
-    16px;
+    18px;
 
   padding:
-    20px;
+    22px;
 
   transition:
     0.3s;
@@ -838,11 +800,11 @@ input:checked + .slider:before {
   color:
     #94a3b8;
 
-  display:
-    block;
-
   margin-top:
     8px;
+
+  display:
+    block;
 
 }
 
@@ -858,17 +820,17 @@ input:checked + .slider:before {
   height:
     10px;
 
-  border-radius:
-    999px;
-
   background:
     rgba(255,255,255,0.08);
+
+  border-radius:
+    999px;
 
   overflow:
     hidden;
 
   margin-top:
-    12px;
+    14px;
 
 }
 
@@ -890,6 +852,222 @@ input:checked + .slider:before {
 }
 
 /* =========================
+   CONFIDENCE METER
+========================= */
+
+.confidence-wrapper {
+
+  margin-top:
+    18px;
+
+}
+
+.confidence-label {
+
+  display:
+    flex;
+
+  justify-content:
+    space-between;
+
+  margin-bottom:
+    10px;
+
+  font-size:
+    14px;
+
+  color:
+    #cbd5e1;
+
+}
+
+.confidence-bar {
+
+  width:
+    100%;
+
+  height:
+    14px;
+
+  border-radius:
+    999px;
+
+  overflow:
+    hidden;
+
+  background:
+    rgba(255,255,255,0.08);
+
+}
+
+.confidence-fill {
+
+  height:
+    100%;
+
+  border-radius:
+    999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #22c55e,
+      #4ade80
+    );
+
+}
+
+/* =========================
+   BADGES
+========================= */
+
+.badge-container {
+
+  display:
+    flex;
+
+  flex-wrap:
+    wrap;
+
+  gap:
+    10px;
+
+  margin-top:
+    16px;
+
+}
+
+.badge {
+
+  padding:
+    10px 14px;
+
+  border-radius:
+    999px;
+
+  font-size:
+    12px;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.4px;
+
+}
+
+.badge-green {
+
+  background:
+    rgba(34,197,94,0.15);
+
+  color:
+    #4ade80;
+
+  border:
+    1px solid rgba(34,197,94,0.3);
+
+}
+
+.badge-yellow {
+
+  background:
+    rgba(245,158,11,0.15);
+
+  color:
+    #fbbf24;
+
+  border:
+    1px solid rgba(245,158,11,0.3);
+
+}
+
+.badge-red {
+
+  background:
+    rgba(239,68,68,0.15);
+
+  color:
+    #f87171;
+
+  border:
+    1px solid rgba(239,68,68,0.3);
+
+}
+
+.badge-blue {
+
+  background:
+    rgba(59,130,246,0.15);
+
+  color:
+    #60a5fa;
+
+  border:
+    1px solid rgba(59,130,246,0.3);
+
+}
+
+/* =========================
+   RISK PILLS
+========================= */
+
+.risk-pill {
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  padding:
+    10px 16px;
+
+  border-radius:
+    999px;
+
+  font-size:
+    13px;
+
+  font-weight:
+    700;
+
+}
+
+.risk-low {
+
+  background:
+    rgba(34,197,94,0.15);
+
+  color:
+    #4ade80;
+
+}
+
+.risk-medium {
+
+  background:
+    rgba(245,158,11,0.15);
+
+  color:
+    #fbbf24;
+
+}
+
+.risk-high {
+
+  background:
+    rgba(239,68,68,0.15);
+
+  color:
+    #f87171;
+
+}
+
+/* =========================
    VERDICT COLORS
 ========================= */
 
@@ -899,7 +1077,7 @@ input:checked + .slider:before {
     #22c55e !important;
 
   text-shadow:
-    0 0 12px rgba(34,197,94,0.4);
+    0 0 12px rgba(34,197,94,0.45);
 
 }
 
@@ -909,7 +1087,7 @@ input:checked + .slider:before {
     #f59e0b !important;
 
   text-shadow:
-    0 0 12px rgba(245,158,11,0.4);
+    0 0 12px rgba(245,158,11,0.45);
 
 }
 
@@ -919,41 +1097,41 @@ input:checked + .slider:before {
     #ef4444 !important;
 
   text-shadow:
-    0 0 12px rgba(239,68,68,0.4);
+    0 0 12px rgba(239,68,68,0.45);
 
 }
 
 /* =========================
-   VERDICT GLOW CARDS
+   VERDICT CARDS
 ========================= */
 
 .buy-card {
 
   border:
-    1px solid rgba(34,197,94,0.35);
+    1px solid rgba(34,197,94,0.28);
 
   box-shadow:
-    0 0 24px rgba(34,197,94,0.15);
+    0 0 28px rgba(34,197,94,0.12);
 
 }
 
 .watch-card {
 
   border:
-    1px solid rgba(245,158,11,0.35);
+    1px solid rgba(245,158,11,0.28);
 
   box-shadow:
-    0 0 24px rgba(245,158,11,0.15);
+    0 0 28px rgba(245,158,11,0.12);
 
 }
 
 .avoid-card {
 
   border:
-    1px solid rgba(239,68,68,0.35);
+    1px solid rgba(239,68,68,0.28);
 
   box-shadow:
-    0 0 24px rgba(239,68,68,0.15);
+    0 0 28px rgba(239,68,68,0.12);
 
 }
 
@@ -964,16 +1142,16 @@ input:checked + .slider:before {
 .reason-box {
 
   background:
-    rgba(15,23,42,0.95);
+    rgba(15,23,42,0.94);
 
   border:
-    1px solid rgba(255,255,255,0.06);
+    1px solid rgba(255,255,255,0.05);
 
   border-radius:
-    20px;
+    22px;
 
   padding:
-    26px;
+    28px;
 
   margin-bottom:
     22px;
@@ -984,9 +1162,6 @@ input:checked + .slider:before {
 
   margin-bottom:
     18px;
-
-  color:
-    #f8fafc;
 
 }
 
@@ -1002,11 +1177,11 @@ input:checked + .slider:before {
   margin-bottom:
     12px;
 
-  color:
-    #cbd5e1;
-
   line-height:
     1.7;
+
+  color:
+    #cbd5e1;
 
 }
 
@@ -1022,7 +1197,7 @@ input:checked + .slider:before {
 }
 
 /* =========================
-   FADE ANIMATION
+   ANIMATION
 ========================= */
 
 @keyframes fadeIn {
@@ -1096,6 +1271,9 @@ input:checked + .slider:before {
 
     align-items:
       flex-start;
+
+    gap:
+      16px;
 
   }
 
