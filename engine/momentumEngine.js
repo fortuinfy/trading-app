@@ -2,20 +2,24 @@
 // MOMENTUM ENGINE
 // =========================
 
-window.calculateMomentum =
-function(data) {
+function calculateMomentum(data) {
+
+  const {
+
+    advancedEnabled,
+    candles
+
+  } = data;
 
   // =========================
-  // ADVANCED MODE CHECK
+  // DEFAULT RESPONSE
   // =========================
 
-  if (!data.advancedEnabled) {
+  if (!advancedEnabled) {
 
     return {
 
       momentumScore: 0,
-
-      relativeVolume: 0,
 
       relativeVolumeStatus:
         "Not Enabled",
@@ -26,209 +30,138 @@ function(data) {
       participationTrend:
         "Basic Engine Only",
 
-      weaknessDetected: false,
-
-      advancedReasons: []
+      weaknessDetected: false
 
     };
 
   }
 
   // =========================
-  // CONFIG
-  // =========================
-
-  const config =
-    window.APP_CONFIG;
-
-  // =========================
-  // INPUTS
-  // =========================
-
-  const {
-
-    candles
-
-  } = data;
-
-  // =========================
-  // CANDLE DATA
-  // =========================
-
-  const c1 = candles[0];
-  const c2 = candles[1];
-  const c3 = candles[2];
-  const c4 = candles[3];
-  const c5 = candles[4];
-
-  // =========================
-  // INITIAL VALUES
+  // INITIAL VARIABLES
   // =========================
 
   let momentumScore = 0;
 
+  let bullishCandles = 0;
+
+  let bearishCandles = 0;
+
+  let risingCloses = 0;
+
+  let fallingCloses = 0;
+
+  let increasingVolume = 0;
+
+  let decreasingVolume = 0;
+
   let weaknessDetected = false;
 
-  let advancedReasons = [];
-
   // =========================
-  // VOLUME CALCULATIONS
+  // BULLISH / BEARISH COUNT
   // =========================
 
-  const avgVolume = (
+  candles.forEach(candle => {
 
-    c2.volume +
-    c3.volume +
-    c4.volume +
-    c5.volume
+    if (
+      candle.nature === "Bullish"
+    ) {
 
-  ) / 4;
+      bullishCandles++;
 
-  const relativeVolume =
-    avgVolume > 0
+    }
 
-      ?
+    else {
 
-      c1.volume / avgVolume
+      bearishCandles++;
 
-      :
+    }
 
-      0;
-
-  const relativeVolumeStatus =
-
-    window.getRelativeVolumeStatus(
-      relativeVolume
-    );
+  });
 
   // =========================
-  // HIGHER CLOSES
+  // CLOSE ANALYSIS
   // =========================
 
-  if (c1.close > c2.close) {
+  for (let i = 0; i < candles.length - 1; i++) {
 
-    momentumScore +=
-      config.momentum.scoring
-        .higherClose;
+    // =========================
+    // PRICE MOMENTUM
+    // =========================
 
-    advancedReasons.push(
-      "Recent candle closed higher than previous candle."
-    );
+    if (
 
-  }
+      candles[i].close >
 
-  if (c2.close > c3.close) {
+      candles[i + 1].close
 
-    momentumScore +=
-      config.momentum.scoring
-        .higherClose;
+    ) {
 
-  }
+      risingCloses++;
 
-  if (c3.close > c4.close) {
+    }
 
-    momentumScore +=
-      config.momentum.scoring
-        .higherClose;
+    else {
 
-  }
+      fallingCloses++;
 
-  if (c4.close > c5.close) {
+    }
 
-    momentumScore +=
-      config.momentum.scoring
-        .higherClose;
+    // =========================
+    // VOLUME MOMENTUM
+    // =========================
 
-  }
+    if (
 
-  // =========================
-  // BULLISH CANDLES
-  // =========================
+      candles[i].volume >
 
-  if (c1.nature === "Bullish") {
+      candles[i + 1].volume
 
-    momentumScore +=
-      config.momentum.scoring
-        .bullishCandle;
+    ) {
 
-    advancedReasons.push(
-      "Latest candle remains bullish."
-    );
+      increasingVolume++;
 
-  }
+    }
 
-  if (c2.nature === "Bullish") {
+    else {
 
-    momentumScore +=
-      config.momentum.scoring
-        .bullishCandle;
+      decreasingVolume++;
+
+    }
 
   }
 
   // =========================
-  // RELATIVE VOLUME
+  // BULLISH PARTICIPATION
   // =========================
 
-  if (
-    relativeVolumeStatus === "High"
-  ) {
-
-    momentumScore +=
-      config.momentum.scoring
-        .highRelativeVolume;
-
-    advancedReasons.push(
-      "Strong relative volume participation detected."
-    );
-
-  }
-
-  else if (
-    relativeVolumeStatus === "Low"
-  ) {
-
-    advancedReasons.push(
-      "Participation volume remains weak."
-    );
-
-  }
+  momentumScore +=
+    bullishCandles * 10;
 
   // =========================
-  // RISING PARTICIPATION
+  // PRICE MOMENTUM
   // =========================
 
-  if (
+  momentumScore +=
+    risingCloses * 10;
 
-    c1.volume > c2.volume
+  // =========================
+  // VOLUME PARTICIPATION
+  // =========================
 
-    &&
-
-    c2.volume > c3.volume
-
-  ) {
-
-    momentumScore +=
-      config.momentum.scoring
-        .risingVolumeParticipation;
-
-    advancedReasons.push(
-      "Volume participation expanding progressively."
-    );
-
-  }
+  momentumScore +=
+    increasingVolume * 10;
 
   // =========================
   // MOMENTUM TREND
   // =========================
 
   let momentumTrend =
-    "Weak Momentum";
+    "Neutral Momentum";
 
   if (
 
-    momentumScore >=
-    config.momentum.conditions
-      .strongMomentumScore
+    bullishCandles >= 4 &&
+    risingCloses >= 3
 
   ) {
 
@@ -239,14 +172,23 @@ function(data) {
 
   else if (
 
-    momentumScore >=
-    config.momentum.conditions
-      .moderateMomentumScore
+    bullishCandles >= 3
 
   ) {
 
     momentumTrend =
-      "Moderate Momentum";
+      "Moderate Bullish Momentum";
+
+  }
+
+  else if (
+
+    bearishCandles >= 4
+
+  ) {
+
+    momentumTrend =
+      "Strong Bearish Momentum";
 
   }
 
@@ -255,10 +197,12 @@ function(data) {
   // =========================
 
   let participationTrend =
-    "Weak Participation";
+    "Neutral Participation";
 
   if (
-    relativeVolumeStatus === "High"
+
+    increasingVolume >= 3
+
   ) {
 
     participationTrend =
@@ -267,91 +211,115 @@ function(data) {
   }
 
   else if (
-    relativeVolumeStatus === "Normal"
+
+    increasingVolume >= 2
+
   ) {
 
     participationTrend =
-      "Stable Participation";
+      "Moderate Participation";
+
+  }
+
+  else {
+
+    participationTrend =
+      "Weak Participation";
 
   }
 
   // =========================
-  // WEAKNESS ENGINE
+  // RELATIVE VOLUME
   // =========================
 
-  // Consecutive bearish candles
+  const latestVolume =
+    candles[0].volume;
+
+  let averageVolume = 0;
+
+  candles.forEach(candle => {
+
+    averageVolume += candle.volume;
+
+  });
+
+  averageVolume =
+    averageVolume /
+    candles.length;
+
+  const relativeVolume =
+
+    latestVolume /
+    averageVolume;
+
+  let relativeVolumeStatus =
+    "Normal";
 
   if (
 
-    c1.nature === "Bearish"
+    relativeVolume >= 1.8
 
-    &&
+  ) {
 
-    c2.nature === "Bearish"
+    relativeVolumeStatus =
+      "Very High";
+
+  }
+
+  else if (
+
+    relativeVolume >= 1.3
+
+  ) {
+
+    relativeVolumeStatus =
+      "High";
+
+  }
+
+  else if (
+
+    relativeVolume <= 0.7
+
+  ) {
+
+    relativeVolumeStatus =
+      "Low";
+
+  }
+
+  // =========================
+  // WEAKNESS DETECTION
+  // =========================
+
+  if (
+
+    candles[0].nature === "Bearish" &&
+
+    candles[0].volume >
+    candles[1].volume
 
   ) {
 
     weaknessDetected = true;
 
-    advancedReasons.push(
-      "Consecutive bearish candles detected."
-    );
+    momentumScore -= 15;
 
   }
 
-  // Falling close sequence
+  // =========================
+  // SCORE LIMITS
+  // =========================
 
-  if (
+  if (momentumScore > 100) {
 
-    c1.close < c2.close
-
-    &&
-
-    c2.close < c3.close
-
-  ) {
-
-    weaknessDetected = true;
-
-    advancedReasons.push(
-      "Recent candle closes weakening progressively."
-    );
+    momentumScore = 100;
 
   }
 
-  // Weak latest candle
+  if (momentumScore < 0) {
 
-  if (
-
-    c1.nature === "Bearish"
-
-    &&
-
-    c1.volume > avgVolume
-
-  ) {
-
-    weaknessDetected = true;
-
-    advancedReasons.push(
-      "High-volume bearish candle detected."
-    );
-
-  }
-
-  // Weak momentum score
-
-  if (
-
-    momentumScore <
-    config.momentum.conditions
-      .moderateMomentumScore
-
-  ) {
-
-    advancedReasons.push(
-      "Momentum strength remains weak."
-    );
+    momentumScore = 0;
 
   }
 
@@ -363,18 +331,14 @@ function(data) {
 
     momentumScore,
 
-    relativeVolume,
-
     relativeVolumeStatus,
 
     momentumTrend,
 
     participationTrend,
 
-    weaknessDetected,
-
-    advancedReasons
+    weaknessDetected
 
   };
 
-};
+}
