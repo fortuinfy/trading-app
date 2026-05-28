@@ -2,176 +2,118 @@
 // TRADE MANAGEMENT ENGINE
 // =========================
 
-window.manageActiveTrade =
-function(data) {
-
-  // =========================
-  // INPUTS
-  // =========================
+function manageActiveTrade(data) {
 
   const {
 
     ltp,
-    ema20,
-    ema50,
-    rsi,
 
     executedEntry,
     currentSL,
     currentTarget,
-    quantity
+
+    momentumScore,
+
+    momentumTrend,
+    participationTrend,
+
+    relativeVolumeStatus,
+
+    weaknessDetected,
+
+    rsi,
+    ema20,
+    ema50
 
   } = data;
 
   // =========================
-  // CONFIG
-  // =========================
-
-  const config =
-    window.APP_CONFIG;
-
-  // =========================
-  // INITIAL VALUES
+  // INITIAL VARIABLES
   // =========================
 
   let tradeVerdict =
-    config.verdicts.continueHolding;
+    "CONTINUE HOLDING";
+
+  let priority =
+    "MEDIUM";
+
+  let suggestedSL =
+    currentSL;
+
+  let suggestedTarget =
+    currentTarget;
+
+  let tradeHealth =
+    "Healthy";
 
   let tradeReasons = [];
 
-  let managementPlan = {};
-
   // =========================
-  // FULL EXIT
+  // PROFIT CALCULATION
   // =========================
 
-  if (
+  const pnlPercent =
 
-    ltp <= currentSL
-
-    ||
-
-    ltp < ema20
-
-    ||
-
-    rsi <
-    config.tradeManagement
-      .fullExit
-      .rsiBreakdownLevel
-
-    ||
-
-    ema20 < ema50
-
-  ) {
-
-    tradeVerdict =
-      config.verdicts.fullExit;
-
-    tradeReasons.push(
-      "Trend structure weakening."
-    );
-
-    tradeReasons.push(
-      "Capital protection prioritized."
-    );
-
-    if (ltp <= currentSL) {
-
-      tradeReasons.push(
-        "Price breached stop loss zone."
-      );
-
-    }
-
-    if (ema20 < ema50) {
-
-      tradeReasons.push(
-        "EMA trend alignment turned bearish."
-      );
-
-    }
-
-    managementPlan = {
-
-      exitQuantity:
-        quantity,
-
-      exitPrice:
-        ltp.toFixed(2)
-
-    };
-
-    return {
-
-      tradeVerdict,
-      tradeReasons,
-      managementPlan
-
-    };
-
-  }
+    (
+      (ltp - executedEntry) /
+      executedEntry
+    ) * 100;
 
   // =========================
-  // PARTIAL EXIT
+  // DISTANCE ANALYSIS
+  // =========================
+
+  const targetDistance =
+
+    (
+      (currentTarget - ltp) /
+      ltp
+    ) * 100;
+
+  const slDistance =
+
+    (
+      (ltp - currentSL) /
+      ltp
+    ) * 100;
+
+  // =========================
+  // TREND HEALTH
+  // =========================
+
+  const bullishTrend =
+
+    ltp > ema20 &&
+    ema20 > ema50;
+
+  // =========================
+  // CONTINUE HOLDING
   // =========================
 
   if (
 
-    ltp >=
-    currentTarget *
-    config.tradeManagement
-      .partialExit
-      .targetReachPercent
+    bullishTrend &&
 
-    &&
+    momentumScore >= 65 &&
 
-    rsi >=
-    config.tradeManagement
-      .partialExit
-      .rsiMinimum
+    !weaknessDetected
 
   ) {
 
     tradeVerdict =
-      config.verdicts.partialExit;
+      "CONTINUE HOLDING";
+
+    priority =
+      "HIGH";
+
+    tradeHealth =
+      "Strong";
 
     tradeReasons.push(
-      "Price approaching target zone."
+
+      "Trend structure remains bullish with strong momentum continuation."
+
     );
-
-    tradeReasons.push(
-      "Partial profit booking advised."
-    );
-
-    tradeReasons.push(
-      "Extension risk increasing."
-    );
-
-    const partialQty =
-      Math.floor(quantity / 2);
-
-    managementPlan = {
-
-      exitQuantity:
-        partialQty,
-
-      holdQuantity:
-        quantity - partialQty,
-
-      suggestedTrailSL:
-        ema20.toFixed(2)
-
-    };
-
-    return {
-
-      tradeVerdict,
-      tradeReasons,
-      managementPlan
-
-    };
 
   }
 
@@ -181,91 +123,166 @@ function(data) {
 
   if (
 
-    ltp >=
-    executedEntry *
-    config.tradeManagement
-      .trailSL
-      .activationPercent
+    pnlPercent >= 5 &&
 
-    &&
+    bullishTrend &&
 
-    rsi >=
-    config.tradeManagement
-      .trailSL
-      .rsiMin
-
-    &&
-
-    rsi <=
-    config.tradeManagement
-      .trailSL
-      .rsiMax
+    momentumScore >= 50
 
   ) {
 
     tradeVerdict =
-      config.verdicts.trailStopLoss;
+      "TRAIL STOP LOSS";
+
+    priority =
+      "HIGH";
+
+    suggestedSL =
+      ema20;
+
+    tradeHealth =
+      "Profitable";
 
     tradeReasons.push(
-      "Trade moved favorably."
+
+      "Trade is in healthy profit zone. Trailing stop loss recommended to protect gains."
+
     );
-
-    tradeReasons.push(
-      "Profit protection recommended."
-    );
-
-    tradeReasons.push(
-      "Momentum remains stable."
-    );
-
-    managementPlan = {
-
-      currentSL:
-        currentSL.toFixed(2),
-
-      suggestedNewSL:
-        ema20.toFixed(2)
-
-    };
-
-    return {
-
-      tradeVerdict,
-      tradeReasons,
-      managementPlan
-
-    };
 
   }
 
   // =========================
-  // CONTINUE HOLDING
+  // PARTIAL EXIT
   // =========================
 
-  tradeVerdict =
-    config.verdicts.continueHolding;
+  if (
+
+    targetDistance <= 3 &&
+
+    momentumScore < 65
+
+  ) {
+
+    tradeVerdict =
+      "PARTIAL EXIT";
+
+    priority =
+      "MEDIUM";
+
+    tradeHealth =
+      "Extended";
+
+    tradeReasons.push(
+
+      "Price is approaching target zone with slowing momentum characteristics."
+
+    );
+
+  }
+
+  // =========================
+  // FULL EXIT CONDITIONS
+  // =========================
+
+  if (
+
+    ltp < ema20 ||
+
+    weaknessDetected ||
+
+    momentumScore < 40 ||
+
+    rsi < 45
+
+  ) {
+
+    tradeVerdict =
+      "FULL EXIT";
+
+    priority =
+      "HIGH";
+
+    tradeHealth =
+      "Weak";
+
+    tradeReasons.push(
+
+      "Trend structure and momentum conditions are weakening significantly."
+
+    );
+
+  }
+
+  // =========================
+  // PARTICIPATION ANALYSIS
+  // =========================
 
   tradeReasons.push(
-    "Trend structure remains healthy."
+
+    "Participation Trend: " +
+    participationTrend
+
   );
 
   tradeReasons.push(
-    "Trade holding above EMA20."
+
+    "Relative Volume Status: " +
+    relativeVolumeStatus
+
   );
 
   tradeReasons.push(
-    "Momentum remains supportive."
+
+    "Momentum Trend: " +
+    momentumTrend
+
   );
 
-  managementPlan = {
+  // =========================
+  // RISK ANALYSIS
+  // =========================
 
-    currentSL:
-      currentSL.toFixed(2),
+  if (
 
-    currentTarget:
-      currentTarget.toFixed(2)
+    slDistance <= 2
 
-  };
+  ) {
+
+    tradeReasons.push(
+
+      "Current price is trading close to stop loss zone."
+
+    );
+
+  }
+
+  if (
+
+    pnlPercent > 0
+
+  ) {
+
+    tradeReasons.push(
+
+      "Trade is currently profitable by approximately " +
+
+      pnlPercent.toFixed(2) +
+
+      "%."
+
+    );
+
+  }
+
+  else {
+
+    tradeReasons.push(
+
+      "Trade is currently under pressure with unrealized loss."
+
+    );
+
+  }
 
   // =========================
   // RETURN
@@ -274,9 +291,23 @@ function(data) {
   return {
 
     tradeVerdict,
+
+    priority,
+
+    suggestedSL,
+
+    suggestedTarget,
+
+    tradeHealth,
+
     tradeReasons,
-    managementPlan
+
+    pnlPercent,
+
+    targetDistance,
+
+    slDistance
 
   };
 
-};
+}
