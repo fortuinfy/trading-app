@@ -2,12 +2,7 @@
 // SETUP ENGINE
 // =========================
 
-window.calculateSetupScores =
-function(data) {
-
-  // =========================
-  // INPUTS
-  // =========================
+function calculateSetupScores(data) {
 
   const {
 
@@ -20,265 +15,219 @@ function(data) {
   } = data;
 
   // =========================
-  // CONFIG
-  // =========================
-
-  const config =
-    window.APP_CONFIG;
-
-  const timeframeConfig =
-
-    timeframe === "Daily"
-
-      ?
-
-      config.timeframeSettings.daily
-
-      :
-
-      config.timeframeSettings.intraday15m;
-
-  const tolerance =
-    timeframeConfig.emaTolerance;
-
-  // =========================
-  // CALCULATIONS
-  // =========================
-
-  const distance =
-
-    Math.abs(
-      (ltp - ema20) / ema20
-    );
-
-  const emaGap =
-
-    Math.abs(
-      ((ema20 - ema50) / ema50) * 100
-    );
-
-  const nearEMA20 =
-    distance <= tolerance;
-
-  const emaCompressed =
-
-    emaGap <=
-    config.rb.conditions
-      .emaCompressionLimit;
-
-  // =========================
   // INITIAL SCORES
   // =========================
 
   let cbScore = 0;
+
   let pcScore = 0;
+
   let rbScore = 0;
 
   // =========================
-  // CB SCORING
+  // EMA STRUCTURE
   // =========================
 
-  if (ltp > ema20) {
-
-    cbScore +=
-      config.cb.scoring
-        .ltpAboveEMA20;
-
-  }
-
-  if (ema20 > ema50) {
-
-    cbScore +=
-      config.cb.scoring
-        .emaAlignment;
-
-  }
+  // STRONG BULLISH TREND
 
   if (
 
-    emaGap >=
-    config.cb.conditions
-      .emaGapMinimum
-
-  ) {
-
-    cbScore +=
-      config.cb.scoring
-        .emaGapStrength;
-
-  }
-
-  if (
-
-    rsi >=
-    config.cb.conditions
-      .rsiBuyMin
-
-    &&
-
-    rsi <=
-    config.cb.conditions
-      .rsiBuyMax
-
-  ) {
-
-    cbScore +=
-      config.cb.scoring
-        .rsiStrength;
-
-  }
-
-  // =========================
-  // PC SCORING
-  // =========================
-
-  if (ema20 > ema50) {
-
-    pcScore +=
-      config.pc.scoring
-        .emaAlignment;
-
-  }
-
-  if (nearEMA20) {
-
-    pcScore +=
-      config.pc.scoring
-        .ema20Proximity;
-
-  }
-
-  if (
-
-    rsi >=
-    config.pc.conditions
-      .rsiWatchMin
-
-    &&
-
-    rsi <=
-    config.pc.conditions
-      .rsiBuyMax
-
-  ) {
-
-    pcScore +=
-      config.pc.scoring
-        .rsiSupport;
-
-  }
-
-  // =========================
-  // RB SCORING
-  // =========================
-
-  if (emaCompressed) {
-
-    rbScore +=
-      config.rb.scoring
-        .emaCompression;
-
-  }
-
-  if (
-
-    rsi >=
-    config.rb.conditions
-      .rsiNeutralMin
-
-    &&
-
-    rsi <=
-    config.rb.conditions
-      .rsiNeutralMax
-
-  ) {
-
-    rbScore +=
-      config.rb.scoring
-        .neutralRSI;
-
-  }
-
-  if (nearEMA20) {
-
-    rbScore +=
-      config.rb.scoring
-        .emaProximity;
-
-  }
-
-  // =========================
-  // SETUP DETECTION
-  // =========================
-
-  let setup = "None";
-  let setupScore = 0;
-
-  // =========================
-  // RB PRIORITY
-  // =========================
-
-  if (
-
-    emaCompressed
-
-    &&
-
-    rsi >=
-    config.rb.conditions
-      .rsiNeutralMin
-
-    &&
-
-    rsi <=
-    config.rb.conditions
-      .rsiNeutralMax
-
-  ) {
-
-    setup = "RB";
-    setupScore = rbScore;
-
-  }
-
-  // =========================
-  // PC PRIORITY
-  // =========================
-
-  else if (
-
-    nearEMA20
-
-    &&
-
+    ltp > ema20 &&
     ema20 > ema50
 
   ) {
 
-    setup = "PC";
-    setupScore = pcScore;
+    cbScore += 35;
+
+    pcScore += 35;
+
+    rbScore += 20;
 
   }
 
-  // =========================
-  // CB PRIORITY
-  // =========================
+  // MODERATE TREND
 
   else if (
 
     ltp > ema20
 
-    &&
+  ) {
 
-    ema20 > ema50
+    cbScore += 20;
+
+    pcScore += 25;
+
+    rbScore += 15;
+
+  }
+
+  // WEAK TREND
+
+  else {
+
+    cbScore += 5;
+
+    pcScore += 5;
+
+    rbScore += 10;
+
+  }
+
+  // =========================
+  // RSI ANALYSIS
+  // =========================
+
+  // STRONG MOMENTUM
+
+  if (
+
+    rsi >= 60 &&
+    rsi <= 75
 
   ) {
 
-    setup = "CB";
-    setupScore = cbScore;
+    cbScore += 30;
+
+    pcScore += 25;
+
+    rbScore += 20;
 
   }
+
+  // MODERATE MOMENTUM
+
+  else if (
+
+    rsi >= 50
+
+  ) {
+
+    cbScore += 15;
+
+    pcScore += 20;
+
+    rbScore += 15;
+
+  }
+
+  // OVERBOUGHT
+
+  else if (
+
+    rsi > 75
+
+  ) {
+
+    cbScore += 10;
+
+    pcScore += 5;
+
+    rbScore += 5;
+
+  }
+
+  // WEAK MOMENTUM
+
+  else {
+
+    cbScore += 0;
+
+    pcScore += 5;
+
+    rbScore += 10;
+
+  }
+
+  // =========================
+  // EMA DISTANCE ANALYSIS
+  // =========================
+
+  const distanceFromEMA20 =
+
+    (
+      (ltp - ema20) / ema20
+    ) * 100;
+
+  // CONTINUATION BREAKOUT
+
+  if (
+
+    distanceFromEMA20 >= 2 &&
+    distanceFromEMA20 <= 6
+
+  ) {
+
+    cbScore += 30;
+
+  }
+
+  // PULLBACK CONTINUATION
+
+  if (
+
+    distanceFromEMA20 >= -2 &&
+    distanceFromEMA20 <= 2
+
+  ) {
+
+    pcScore += 35;
+
+  }
+
+  // RANGE BREAKOUT
+
+  if (
+
+    distanceFromEMA20 >= 6
+
+  ) {
+
+    rbScore += 35;
+
+  }
+
+  // =========================
+  // TIMEFRAME ADJUSTMENTS
+  // =========================
+
+  if (timeframe === "15 Min") {
+
+    // MORE VOLATILITY
+
+    rbScore += 5;
+
+  }
+
+  else if (
+    timeframe === "Daily"
+  ) {
+
+    // MORE RELIABLE TREND
+
+    cbScore += 5;
+
+    pcScore += 5;
+
+  }
+
+  // =========================
+  // SCORE LIMITS
+  // =========================
+
+  cbScore = Math.min(
+    cbScore,
+    100
+  );
+
+  pcScore = Math.min(
+    pcScore,
+    100
+  );
+
+  rbScore = Math.min(
+    rbScore,
+    100
+  );
 
   // =========================
   // RETURN
@@ -287,20 +236,11 @@ function(data) {
   return {
 
     cbScore,
+
     pcScore,
-    rbScore,
 
-    setup,
-    setupScore,
-
-    distance,
-    emaGap,
-
-    nearEMA20,
-    emaCompressed,
-
-    tolerance
+    rbScore
 
   };
 
-};
+}
