@@ -1,280 +1,227 @@
 // =========================
-// REASONING ENGINE
+// GENERATE REASONS
 // =========================
 
-window.generateReasons =
-function(data) {
+function generateReasons(data) {
 
-  // =========================
-  // INPUTS
-  // =========================
+  const reasons = [];
 
   const {
 
     setup,
+
     verdict,
-    priority,
 
     cbScore,
     pcScore,
     rbScore,
+
+    setupScore,
+
+    momentumScore,
+
+    momentumTrend,
+    participationTrend,
+
+    relativeVolumeStatus,
+
+    weaknessDetected,
 
     ltp,
     ema20,
     ema50,
     rsi,
 
-    momentumScore,
-    momentumTrend,
-
-    relativeVolumeStatus,
-    participationTrend,
-
-    weaknessDetected,
-
-    advancedEnabled,
-
-    advancedReasons
+    advancedEnabled
 
   } = data;
 
   // =========================
-  // CONFIG
+  // TREND STRUCTURE
   // =========================
 
-  const config =
-    window.APP_CONFIG;
+  if (
+    ltp > ema20 &&
+    ema20 > ema50
+  ) {
+
+    reasons.push(
+
+      "Price is trading above EMA20 and EMA50, indicating bullish trend structure."
+
+    );
+
+  }
+
+  else if (
+    ltp > ema20
+  ) {
+
+    reasons.push(
+
+      "Price is holding above EMA20 but broader trend strength remains moderate."
+
+    );
+
+  }
+
+  else {
+
+    reasons.push(
+
+      "Price is trading below key moving averages, showing weak market structure."
+
+    );
+
+  }
 
   // =========================
-  // REASON STORAGE
+  // RSI ANALYSIS
   // =========================
 
-  let reasons = [];
+  if (
+    rsi >= 60 &&
+    rsi <= 75
+  ) {
+
+    reasons.push(
+
+      "RSI is in bullish momentum zone with healthy buying strength."
+
+    );
+
+  }
+
+  else if (
+    rsi >= 50
+  ) {
+
+    reasons.push(
+
+      "RSI remains supportive but momentum strength is moderate."
+
+    );
+
+  }
+
+  else {
+
+    reasons.push(
+
+      "RSI is weak and does not support aggressive bullish positioning."
+
+    );
+
+  }
 
   // =========================
-  // CB REASONS
+  // SETUP STRENGTH
   // =========================
 
   if (setup === "CB") {
 
-    if (ltp > ema20) {
+    reasons.push(
 
-      reasons.push(
-        "Price trading above EMA20."
-      );
+      "Continuation Breakout structure detected with bullish continuation characteristics."
 
-    }
+    );
 
-    if (ema20 > ema50) {
+  }
 
-      reasons.push(
-        "Bullish trend alignment confirmed."
-      );
+  else if (setup === "PC") {
 
-    }
+    reasons.push(
 
-    if (
+      "Pullback Continuation structure detected near trend support zone."
 
-      rsi >=
-      config.cb.conditions
-        .rsiBuyMin
+    );
 
-    ) {
+  }
 
-      reasons.push(
-        "RSI confirms bullish momentum."
-      );
+  else if (setup === "RB") {
 
-    }
+    reasons.push(
 
-    if (
+      "Range Breakout structure detected with expansion potential."
 
-      cbScore >=
-      config.cb.conditions
-        .minimumBuyScore
-
-    ) {
-
-      reasons.push(
-        "Continuation breakout structure remains strong."
-      );
-
-    }
+    );
 
   }
 
   // =========================
-  // PC REASONS
-  // =========================
-
-  if (setup === "PC") {
-
-    reasons.push(
-      "Price positioned near EMA20 support zone."
-    );
-
-    if (ema20 > ema50) {
-
-      reasons.push(
-        "Trend structure remains bullish."
-      );
-
-    }
-
-    if (
-
-      rsi >=
-      config.pc.conditions
-        .rsiWatchMin
-
-    ) {
-
-      reasons.push(
-        "RSI indicates healthy pullback behavior."
-      );
-
-    }
-
-    if (
-
-      pcScore >=
-      config.pc.conditions
-        .minimumBuyScore
-
-    ) {
-
-      reasons.push(
-        "Pullback continuation setup remains valid."
-      );
-
-    }
-
-  }
-
-  // =========================
-  // RB REASONS
-  // =========================
-
-  if (setup === "RB") {
-
-    reasons.push(
-      "EMA compression detected."
-    );
-
-    reasons.push(
-      "Breakout energy building gradually."
-    );
-
-    if (
-
-      rsi >=
-      config.rb.conditions
-        .rsiNeutralMin
-
-      &&
-
-      rsi <=
-      config.rb.conditions
-        .rsiNeutralMax
-
-    ) {
-
-      reasons.push(
-        "RSI remains neutral before breakout."
-      );
-
-    }
-
-  }
-
-  // =========================
-  // VERDICT REASONS
+  // SCORE STRENGTH
   // =========================
 
   if (
-    verdict === config.verdicts.buy
+    setupScore >= 75
   ) {
 
     reasons.push(
-      "Setup quality supports bullish opportunity."
+
+      "Overall setup quality is strong based on multi-engine scoring."
+
     );
 
   }
 
-  if (
-    verdict === config.verdicts.watch
+  else if (
+    setupScore >= 55
   ) {
 
     reasons.push(
-      "Setup still requires additional confirmation."
+
+      "Setup quality is moderate and requires confirmation."
+
     );
 
   }
 
-  if (
-    verdict === config.verdicts.avoid
-  ) {
+  else {
 
     reasons.push(
-      "Risk-reward structure currently unfavorable."
-    );
 
-  }
+      "Setup quality is weak and lacks strong confirmation signals."
 
-  // =========================
-  // PRIORITY REASONS
-  // =========================
-
-  if (
-    priority === config.priority.high
-  ) {
-
-    reasons.push(
-      "High-priority setup conditions satisfied."
-    );
-
-  }
-
-  if (
-    priority === config.priority.medium
-  ) {
-
-    reasons.push(
-      "Moderate conviction setup detected."
     );
 
   }
 
   // =========================
-  // MOMENTUM REASONS
+  // ADVANCED ENGINE
   // =========================
 
   if (advancedEnabled) {
 
+    reasons.push(
+
+      "Advanced momentum engine enabled for deeper participation analysis."
+
+    );
+
+    // =========================
+    // MOMENTUM
+    // =========================
+
     if (
-
-      momentumScore >=
-      config.momentum.conditions
-        .strongMomentumScore
-
+      momentumScore >= 70
     ) {
 
       reasons.push(
-        "Strong momentum expansion detected."
+
+        "Momentum structure is strong with healthy price continuation."
+
       );
 
     }
 
     else if (
-
-      momentumScore >=
-      config.momentum.conditions
-        .moderateMomentumScore
-
+      momentumScore >= 50
     ) {
 
       reasons.push(
-        "Momentum remains supportive."
+
+        "Momentum structure is stable but lacks aggressive expansion."
+
       );
 
     }
@@ -282,75 +229,45 @@ function(data) {
     else {
 
       reasons.push(
-        "Momentum strength remains weak."
+
+        "Momentum structure is weak and continuation probability is lower."
+
       );
 
     }
 
     // =========================
-    // PARTICIPATION REASONS
+    // PARTICIPATION
     // =========================
 
-    if (
-      relativeVolumeStatus === "High"
-    ) {
+    reasons.push(
 
-      reasons.push(
-        "Strong participation volume detected."
-      );
+      "Participation Trend: " +
+      participationTrend
 
-    }
-
-    if (
-      relativeVolumeStatus === "Normal"
-    ) {
-
-      reasons.push(
-        "Market participation remains stable."
-      );
-
-    }
-
-    if (
-      relativeVolumeStatus === "Low"
-    ) {
-
-      reasons.push(
-        "Participation volume remains weak."
-      );
-
-    }
+    );
 
     // =========================
-    // WEAKNESS REASONS
+    // RELATIVE VOLUME
+    // =========================
+
+    reasons.push(
+
+      "Relative Volume Status: " +
+      relativeVolumeStatus
+
+    );
+
+    // =========================
+    // WEAKNESS DETECTION
     // =========================
 
     if (weaknessDetected) {
 
       reasons.push(
-        "Weakness signals detected in recent candles."
-      );
 
-    }
+        "Early weakness signals detected in recent candle participation."
 
-    // =========================
-    // ADVANCED ENGINE REASONS
-    // =========================
-
-    if (
-
-      Array.isArray(
-        advancedReasons
-      )
-
-    ) {
-
-      advancedReasons.forEach(
-        reason => {
-
-          reasons.push(reason);
-
-        }
       );
 
     }
@@ -358,43 +275,42 @@ function(data) {
   }
 
   // =========================
-  // RSI EXTREMES
+  // FINAL VERDICT LOGIC
   // =========================
 
-  if (rsi >= 75) {
+  if (verdict === "BUY") {
 
     reasons.push(
-      "RSI approaching overbought territory."
+
+      "Overall conditions support fresh bullish opportunity."
+
     );
 
   }
 
-  if (rsi <= 40) {
+  else if (
+    verdict === "WATCH"
+  ) {
 
     reasons.push(
-      "RSI indicates weak momentum structure."
+
+      "Setup requires additional confirmation before aggressive entry."
+
     );
 
   }
 
-  // =========================
-  // TREND WARNING
-  // =========================
-
-  if (ema20 < ema50) {
+  else if (
+    verdict === "AVOID"
+  ) {
 
     reasons.push(
-      "Trend alignment weakening."
+
+      "Risk-reward structure currently does not support fresh positioning."
+
     );
 
   }
-
-  // =========================
-  // REMOVE DUPLICATES
-  // =========================
-
-  reasons =
-    [...new Set(reasons)];
 
   // =========================
   // RETURN
@@ -402,4 +318,4 @@ function(data) {
 
   return reasons;
 
-};
+}
