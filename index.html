@@ -272,6 +272,59 @@
     </section>
 
     <!-- =========================
+         POSITION SIZE
+    ========================== -->
+
+    <section class="card">
+
+      <div class="section-header">
+
+        <h3>
+          Position Size Calculator
+        </h3>
+
+        <p>
+          Risk-based quantity calculation
+        </p>
+
+      </div>
+
+      <div class="input-grid">
+
+        <div class="input-group">
+
+          <label>
+            Trading Capital
+          </label>
+
+          <input
+            type="number"
+            id="capital"
+            placeholder="Available Capital"
+          />
+
+        </div>
+
+        <div class="input-group">
+
+          <label>
+            Risk %
+          </label>
+
+          <input
+            type="number"
+            id="riskPercent"
+            placeholder="1"
+            value="1"
+          />
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =========================
          WATCHLIST FOLLOW-UP
     ========================== -->
 
@@ -535,6 +588,10 @@
   <script src="engine/reasoningEngine.js"></script>
 
   <script src="engine/tradeManagementEngine.js"></script>
+
+  <script src="engine/tradePlanEngine.js"></script>
+
+  <script src="engine/positionSizeEngine.js"></script>
 
   <!-- =========================
        MAIN SCRIPT
