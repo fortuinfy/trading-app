@@ -8,7 +8,7 @@ let currentMode = "new";
 // INITIAL LOAD
 // =========================
 
-window.onload = function() {
+window.onload = function () {
 
   updateTimestamp();
 
@@ -190,7 +190,7 @@ function toggleAdvancedSection() {
 }
 
 // =========================
-// DYNAMIC CANDLE RENDERER
+// CANDLE INPUTS
 // =========================
 
 function renderCandleInputs() {
@@ -290,7 +290,7 @@ function renderCandleInputs() {
 }
 
 // =========================
-// RESET ENGINE
+// RESET
 // =========================
 
 function resetAllFields() {
@@ -340,6 +340,10 @@ function resetAllFields() {
 // =========================
 
 function analyzeStock() {
+
+  // =========================
+  // BASIC INPUTS
+  // =========================
 
   const stockName =
     document.getElementById(
@@ -402,7 +406,7 @@ function analyzeStock() {
   }
 
   // =========================
-  // ADVANCED MODE
+  // ADVANCED ENGINE
   // =========================
 
   const advancedEnabled =
@@ -535,6 +539,91 @@ function analyzeStock() {
     });
 
   // =========================
+  // TRADE PLAN ENGINE
+  // =========================
+
+  const tradePlan =
+
+    generateTradePlan({
+
+      ...setupData,
+
+      ...momentumData,
+
+      ...verdictData,
+
+      ltp,
+      ema20,
+      ema50,
+      rsi
+
+    });
+
+  // =========================
+  // POSITION SIZE ENGINE
+  // =========================
+
+  const capital =
+    parseFloat(
+      document.getElementById(
+        "capital"
+      ).value
+    );
+
+  const riskPercent =
+    parseFloat(
+      document.getElementById(
+        "riskPercent"
+      ).value
+    );
+
+  const numericSL =
+    parseFloat(
+      tradePlan.stopLoss
+    );
+
+  let positionData = {
+
+    quantity: 0,
+
+    riskAmount: 0,
+
+    positionValue: 0,
+
+    perShareRisk: 0,
+
+    warning: "",
+
+    message:
+      "Position Size Not Calculated"
+
+  };
+
+  if (
+
+    !isNaN(capital) &&
+    !isNaN(riskPercent) &&
+    !isNaN(numericSL)
+
+  ) {
+
+    positionData =
+
+      calculatePositionSize({
+
+        capital,
+
+        riskPercent,
+
+        entryPrice: ltp,
+
+        stopLoss: numericSL
+
+      });
+
+  }
+
+  // =========================
   // ACTIVE TRADE MODE
   // =========================
 
@@ -610,7 +699,7 @@ function analyzeStock() {
   }
 
   // =========================
-  // NORMAL MODES
+  // STANDARD RESULTS
   // =========================
 
   renderStandardResults({
@@ -624,6 +713,10 @@ function analyzeStock() {
 
     ...verdictData,
 
+    ...tradePlan,
+
+    ...positionData,
+
     reasons
 
   });
@@ -634,9 +727,7 @@ function analyzeStock() {
 // STANDARD RESULTS
 // =========================
 
-function renderStandardResults(
-  data
-) {
+function renderStandardResults(data) {
 
   const {
 
@@ -661,7 +752,21 @@ function renderStandardResults(
 
     participationTrend,
 
-    reasons
+    reasons,
+
+    entryZone,
+    triggerZone,
+    stopLoss,
+    target,
+
+    tradeAction,
+    riskLevel,
+    warning,
+
+    quantity,
+    riskAmount,
+    positionValue,
+    perShareRisk
 
   } = data;
 
@@ -730,18 +835,6 @@ function renderStandardResults(
         <div class="result-item">
 
           <h4>
-            Analysis Mode
-          </h4>
-
-          <p>
-            ${currentMode}
-          </p>
-
-        </div>
-
-        <div class="result-item">
-
-          <h4>
             Verdict
           </h4>
 
@@ -766,7 +859,7 @@ function renderStandardResults(
         <div class="result-item">
 
           <h4>
-            Detected Setup
+            Setup
           </h4>
 
           <p>
@@ -788,7 +881,7 @@ function renderStandardResults(
       <div class="section-header">
 
         <h3>
-          Setup & Momentum Scores
+          Setup Scores
         </h3>
 
       </div>
@@ -911,6 +1004,158 @@ function renderStandardResults(
 
     </div>
 
+    <div class="card">
+
+      <div class="section-header">
+
+        <h3>
+          Trade Plan
+        </h3>
+
+      </div>
+
+      <div class="result-grid">
+
+        <div class="result-item">
+
+          <h4>
+            Entry Zone
+          </h4>
+
+          <p>
+            ${entryZone}
+          </p>
+
+        </div>
+
+        <div class="result-item">
+
+          <h4>
+            Trigger Zone
+          </h4>
+
+          <p>
+            ${triggerZone}
+          </p>
+
+        </div>
+
+        <div class="result-item">
+
+          <h4>
+            Stop Loss
+          </h4>
+
+          <p>
+            ${stopLoss}
+          </p>
+
+        </div>
+
+        <div class="result-item">
+
+          <h4>
+            Target
+          </h4>
+
+          <p>
+            ${target}
+          </p>
+
+        </div>
+
+        <div class="result-item">
+
+          <h4>
+            Risk Level
+          </h4>
+
+          <p>
+            ${riskLevel}
+          </p>
+
+        </div>
+
+        <div class="result-item">
+
+          <h4>
+            Trade Action
+          </h4>
+
+          <p>
+            ${tradeAction}
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <div class="section-header">
+
+        <h3>
+          Position Size
+        </h3>
+
+      </div>
+
+      <div class="result-grid">
+
+        <div class="result-item">
+
+          <h4>
+            Suggested Quantity
+          </h4>
+
+          <p>
+            ${quantity}
+          </p>
+
+        </div>
+
+        <div class="result-item">
+
+          <h4>
+            Risk Amount
+          </h4>
+
+          <p>
+            ₹${riskAmount}
+          </p>
+
+        </div>
+
+        <div class="result-item">
+
+          <h4>
+            Position Value
+          </h4>
+
+          <p>
+            ₹${positionValue}
+          </p>
+
+        </div>
+
+        <div class="result-item">
+
+          <h4>
+            Per Share Risk
+          </h4>
+
+          <p>
+            ₹${perShareRisk}
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
     <div class="reason-box">
 
       <h3>
@@ -930,6 +1175,26 @@ function renderStandardResults(
 
     </div>
 
+    ${warning ? `
+
+      <div class="reason-box">
+
+        <h3>
+          Warning
+        </h3>
+
+        <ul>
+
+          <li>
+            ${warning}
+          </li>
+
+        </ul>
+
+      </div>
+
+    ` : ""}
+
   `;
 
   resultCard.classList.remove(
@@ -939,12 +1204,10 @@ function renderStandardResults(
 }
 
 // =========================
-// ACTIVE TRADE RESULTS
+// TRADE RESULTS
 // =========================
 
-function renderTradeResults(
-  data
-) {
+function renderTradeResults(data) {
 
   const {
 
