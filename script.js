@@ -290,7 +290,7 @@ function renderCandleInputs() {
 }
 
 // =========================
-// RESET
+// RESET ENGINE
 // =========================
 
 function resetAllFields() {
@@ -345,60 +345,76 @@ function analyzeStock() {
   // BASIC INPUTS
   // =========================
 
-  const stockName =
+  const stockName = safeString(
+
     document.getElementById(
       "stockName"
-    ).value;
+    ).value
 
-  const timeframe =
+  );
+
+  const timeframe = safeString(
+
     document.getElementById(
       "timeframe"
-    ).value;
+    ).value,
 
-  const ltp =
-    parseFloat(
-      document.getElementById(
-        "ltp"
-      ).value
-    );
+    "Daily"
 
-  const ema20 =
-    parseFloat(
-      document.getElementById(
-        "ema20"
-      ).value
-    );
+  );
 
-  const ema50 =
-    parseFloat(
-      document.getElementById(
-        "ema50"
-      ).value
-    );
+  const ltp = safeNumber(
 
-  const rsi =
-    parseFloat(
-      document.getElementById(
-        "rsi"
-      ).value
-    );
+    document.getElementById(
+      "ltp"
+    ).value
+
+  );
+
+  const ema20 = safeNumber(
+
+    document.getElementById(
+      "ema20"
+    ).value
+
+  );
+
+  const ema50 = safeNumber(
+
+    document.getElementById(
+      "ema50"
+    ).value
+
+  );
+
+  const rsi = safeNumber(
+
+    document.getElementById(
+      "rsi"
+    ).value
+
+  );
 
   // =========================
-  // VALIDATION
+  // BASIC VALIDATION
   // =========================
 
-  if (
+  const basicValidation =
 
-    !stockName ||
-    isNaN(ltp) ||
-    isNaN(ema20) ||
-    isNaN(ema50) ||
-    isNaN(rsi)
+    validateBasicInputs({
 
-  ) {
+      stockName,
+      ltp,
+      ema20,
+      ema50,
+      rsi
+
+    });
+
+  if (!basicValidation.valid) {
 
     alert(
-      "Please fill all mandatory fields."
+      basicValidation.message
     );
 
     return;
@@ -409,11 +425,13 @@ function analyzeStock() {
   // ADVANCED ENGINE
   // =========================
 
-  const advancedEnabled =
+  const advancedEnabled = safeBoolean(
 
     document.getElementById(
       "advancedToggle"
-    ).checked;
+    ).checked
+
+  );
 
   // =========================
   // SETUP ENGINE
@@ -432,7 +450,7 @@ function analyzeStock() {
     });
 
   // =========================
-  // MOMENTUM ENGINE
+  // DEFAULT MOMENTUM
   // =========================
 
   let momentumData = {
@@ -452,6 +470,10 @@ function analyzeStock() {
 
   };
 
+  // =========================
+  // ADVANCED ANALYSIS
+  // =========================
+
   if (advancedEnabled) {
 
     const candles = [];
@@ -460,27 +482,63 @@ function analyzeStock() {
 
       candles.push({
 
-        close: parseFloat(
+        close: safeNumber(
+
           document.getElementById(
             "close" + i
           ).value
+
         ),
 
-        nature:
+        nature: safeString(
+
           document.getElementById(
             "nature" + i
           ).value,
 
-        volume:
+          "Bullish"
+
+        ),
+
+        volume: safeNumber(
+
           parseVolume(
+
             document.getElementById(
               "volume" + i
             ).value
+
           )
+
+        )
 
       });
 
     }
+
+    // =========================
+    // VALIDATE CANDLES
+    // =========================
+
+    const candleValidation =
+
+      validateCandleInputs(
+        candles
+      );
+
+    if (!candleValidation.valid) {
+
+      alert(
+        candleValidation.message
+      );
+
+      return;
+
+    }
+
+    // =========================
+    // MOMENTUM ENGINE
+    // =========================
 
     momentumData =
 
@@ -519,7 +577,7 @@ function analyzeStock() {
   // REASONING ENGINE
   // =========================
 
-  const reasons =
+  const reasons = safeArray(
 
     generateReasons({
 
@@ -536,7 +594,9 @@ function analyzeStock() {
 
       advancedEnabled
 
-    });
+    })
+
+  );
 
   // =========================
   // TRADE PLAN ENGINE
@@ -563,24 +623,27 @@ function analyzeStock() {
   // POSITION SIZE ENGINE
   // =========================
 
-  const capital =
-    parseFloat(
-      document.getElementById(
-        "capital"
-      ).value
-    );
+  const capital = safeNumber(
 
-  const riskPercent =
-    parseFloat(
-      document.getElementById(
-        "riskPercent"
-      ).value
-    );
+    document.getElementById(
+      "capital"
+    ).value
 
-  const numericSL =
-    parseFloat(
-      tradePlan.stopLoss
-    );
+  );
+
+  const riskPercent = safeNumber(
+
+    document.getElementById(
+      "riskPercent"
+    ).value,
+
+    1
+
+  );
+
+  const numericSL = safeNumber(
+    tradePlan.stopLoss
+  );
 
   let positionData = {
 
@@ -601,9 +664,9 @@ function analyzeStock() {
 
   if (
 
-    !isNaN(capital) &&
-    !isNaN(riskPercent) &&
-    !isNaN(numericSL)
+    capital > 0 &&
+    riskPercent > 0 &&
+    numericSL > 0
 
   ) {
 
@@ -629,33 +692,66 @@ function analyzeStock() {
 
   if (currentMode === "active") {
 
-    const executedEntry =
-      parseFloat(
-        document.getElementById(
-          "executedEntry"
-        ).value
+    const executedEntry = safeNumber(
+
+      document.getElementById(
+        "executedEntry"
+      ).value
+
+    );
+
+    const currentSL = safeNumber(
+
+      document.getElementById(
+        "currentSL"
+      ).value
+
+    );
+
+    const currentTarget = safeNumber(
+
+      document.getElementById(
+        "currentTarget"
+      ).value
+
+    );
+
+    const quantity = safeNumber(
+
+      document.getElementById(
+        "quantityTraded"
+      ).value
+
+    );
+
+    // =========================
+    // ACTIVE VALIDATION
+    // =========================
+
+    const activeValidation =
+
+      validateActiveTradeInputs({
+
+        executedEntry,
+        currentSL,
+        currentTarget,
+        quantity
+
+      });
+
+    if (!activeValidation.valid) {
+
+      alert(
+        activeValidation.message
       );
 
-    const currentSL =
-      parseFloat(
-        document.getElementById(
-          "currentSL"
-        ).value
-      );
+      return;
 
-    const currentTarget =
-      parseFloat(
-        document.getElementById(
-          "currentTarget"
-        ).value
-      );
+    }
 
-    const quantity =
-      parseFloat(
-        document.getElementById(
-          "quantityTraded"
-        ).value
-      );
+    // =========================
+    // TRADE ENGINE
+    // =========================
 
     const tradeData =
 
@@ -729,47 +825,6 @@ function analyzeStock() {
 
 function renderStandardResults(data) {
 
-  const {
-
-    stockName,
-    timeframe,
-
-    setup,
-    setupScore,
-
-    cbScore,
-    pcScore,
-    rbScore,
-
-    verdict,
-    priority,
-
-    momentumScore,
-
-    relativeVolumeStatus,
-
-    momentumTrend,
-
-    participationTrend,
-
-    reasons,
-
-    entryZone,
-    triggerZone,
-    stopLoss,
-    target,
-
-    tradeAction,
-    riskLevel,
-    warning,
-
-    quantity,
-    riskAmount,
-    positionValue,
-    perShareRisk
-
-  } = data;
-
   const resultCard =
     document.getElementById(
       "resultCard"
@@ -783,15 +838,15 @@ function renderStandardResults(data) {
   const setupFullName =
 
     APP_CONFIG.SETUP_NAMES[
-      setup
+      safeText(data.setup)
     ];
 
   let verdictClass = "avoid";
 
-  if (verdict === "BUY")
+  if (data.verdict === "BUY")
     verdictClass = "buy";
 
-  if (verdict === "WATCH")
+  if (data.verdict === "WATCH")
     verdictClass = "watch";
 
   resultContent.innerHTML = `
@@ -809,67 +864,31 @@ function renderStandardResults(data) {
       <div class="result-grid">
 
         <div class="result-item">
-
-          <h4>
-            Stock Name
-          </h4>
-
-          <p>
-            ${stockName}
-          </p>
-
+          <h4>Stock Name</h4>
+          <p>${safeText(data.stockName)}</p>
         </div>
 
         <div class="result-item">
-
-          <h4>
-            Timeframe
-          </h4>
-
-          <p>
-            ${timeframe}
-          </p>
-
+          <h4>Timeframe</h4>
+          <p>${safeText(data.timeframe)}</p>
         </div>
 
         <div class="result-item">
-
-          <h4>
-            Verdict
-          </h4>
-
+          <h4>Verdict</h4>
           <p class="${verdictClass}">
-            ${verdict}
+            ${safeText(data.verdict)}
           </p>
-
         </div>
 
         <div class="result-item">
-
-          <h4>
-            Priority
-          </h4>
-
-          <p>
-            ${priority}
-          </p>
-
+          <h4>Priority</h4>
+          <p>${safeText(data.priority)}</p>
         </div>
 
         <div class="result-item">
-
-          <h4>
-            Setup
-          </h4>
-
-          <p>
-            ${setup}
-          </p>
-
-          <small>
-            ${setupFullName}
-          </small>
-
+          <h4>Setup</h4>
+          <p>${safeText(data.setup)}</p>
+          <small>${safeText(setupFullName)}</small>
         </div>
 
       </div>
@@ -879,73 +898,29 @@ function renderStandardResults(data) {
     <div class="card">
 
       <div class="section-header">
-
-        <h3>
-          Setup Scores
-        </h3>
-
+        <h3>Trade Plan</h3>
       </div>
 
       <div class="result-grid">
 
         <div class="result-item">
-
-          <h4>
-            Setup Score
-          </h4>
-
-          <p>
-            ${setupScore}/100
-          </p>
-
+          <h4>Entry Zone</h4>
+          <p>${safeText(data.entryZone)}</p>
         </div>
 
         <div class="result-item">
-
-          <h4>
-            CB Score
-          </h4>
-
-          <p>
-            ${cbScore}/100
-          </p>
-
+          <h4>Trigger Zone</h4>
+          <p>${safeText(data.triggerZone)}</p>
         </div>
 
         <div class="result-item">
-
-          <h4>
-            PC Score
-          </h4>
-
-          <p>
-            ${pcScore}/100
-          </p>
-
+          <h4>Stop Loss</h4>
+          <p>${safeText(data.stopLoss)}</p>
         </div>
 
         <div class="result-item">
-
-          <h4>
-            RB Score
-          </h4>
-
-          <p>
-            ${rbScore}/100
-          </p>
-
-        </div>
-
-        <div class="result-item">
-
-          <h4>
-            Momentum Score
-          </h4>
-
-          <p>
-            ${momentumScore}/100
-          </p>
-
+          <h4>Target</h4>
+          <p>${safeText(data.target)}</p>
         </div>
 
       </div>
@@ -955,201 +930,29 @@ function renderStandardResults(data) {
     <div class="card">
 
       <div class="section-header">
-
-        <h3>
-          Momentum Analysis
-        </h3>
-
+        <h3>Position Size</h3>
       </div>
 
       <div class="result-grid">
 
         <div class="result-item">
-
-          <h4>
-            Momentum Trend
-          </h4>
-
-          <p>
-            ${momentumTrend}
-          </p>
-
+          <h4>Suggested Quantity</h4>
+          <p>${safeText(data.quantity)}</p>
         </div>
 
         <div class="result-item">
-
-          <h4>
-            Participation Trend
-          </h4>
-
-          <p>
-            ${participationTrend}
-          </p>
-
+          <h4>Risk Amount</h4>
+          <p>${safeCurrency(data.riskAmount)}</p>
         </div>
 
         <div class="result-item">
-
-          <h4>
-            Relative Volume
-          </h4>
-
-          <p>
-            ${relativeVolumeStatus}
-          </p>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="card">
-
-      <div class="section-header">
-
-        <h3>
-          Trade Plan
-        </h3>
-
-      </div>
-
-      <div class="result-grid">
-
-        <div class="result-item">
-
-          <h4>
-            Entry Zone
-          </h4>
-
-          <p>
-            ${entryZone}
-          </p>
-
+          <h4>Position Value</h4>
+          <p>${safeCurrency(data.positionValue)}</p>
         </div>
 
         <div class="result-item">
-
-          <h4>
-            Trigger Zone
-          </h4>
-
-          <p>
-            ${triggerZone}
-          </p>
-
-        </div>
-
-        <div class="result-item">
-
-          <h4>
-            Stop Loss
-          </h4>
-
-          <p>
-            ${stopLoss}
-          </p>
-
-        </div>
-
-        <div class="result-item">
-
-          <h4>
-            Target
-          </h4>
-
-          <p>
-            ${target}
-          </p>
-
-        </div>
-
-        <div class="result-item">
-
-          <h4>
-            Risk Level
-          </h4>
-
-          <p>
-            ${riskLevel}
-          </p>
-
-        </div>
-
-        <div class="result-item">
-
-          <h4>
-            Trade Action
-          </h4>
-
-          <p>
-            ${tradeAction}
-          </p>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="card">
-
-      <div class="section-header">
-
-        <h3>
-          Position Size
-        </h3>
-
-      </div>
-
-      <div class="result-grid">
-
-        <div class="result-item">
-
-          <h4>
-            Suggested Quantity
-          </h4>
-
-          <p>
-            ${quantity}
-          </p>
-
-        </div>
-
-        <div class="result-item">
-
-          <h4>
-            Risk Amount
-          </h4>
-
-          <p>
-            ₹${riskAmount}
-          </p>
-
-        </div>
-
-        <div class="result-item">
-
-          <h4>
-            Position Value
-          </h4>
-
-          <p>
-            ₹${positionValue}
-          </p>
-
-        </div>
-
-        <div class="result-item">
-
-          <h4>
-            Per Share Risk
-          </h4>
-
-          <p>
-            ₹${perShareRisk}
-          </p>
-
+          <h4>Per Share Risk</h4>
+          <p>${safeCurrency(data.perShareRisk)}</p>
         </div>
 
       </div>
@@ -1164,36 +967,16 @@ function renderStandardResults(data) {
 
       <ul>
 
-        ${reasons
+        ${safeArray(data.reasons)
           .map(
             item =>
-              `<li>${item}</li>`
+              `<li>${safeText(item)}</li>`
           )
           .join("")}
 
       </ul>
 
     </div>
-
-    ${warning ? `
-
-      <div class="reason-box">
-
-        <h3>
-          Warning
-        </h3>
-
-        <ul>
-
-          <li>
-            ${warning}
-          </li>
-
-        </ul>
-
-      </div>
-
-    ` : ""}
 
   `;
 
@@ -1208,27 +991,6 @@ function renderStandardResults(data) {
 // =========================
 
 function renderTradeResults(data) {
-
-  const {
-
-    stockName,
-    timeframe,
-
-    tradeVerdict,
-
-    priority,
-
-    tradeHealth,
-
-    pnlPercent,
-
-    suggestedSL,
-
-    suggestedTarget,
-
-    tradeReasons
-
-  } = data;
 
   const resultCard =
     document.getElementById(
@@ -1255,115 +1017,28 @@ function renderTradeResults(data) {
       <div class="result-grid">
 
         <div class="result-item">
-
-          <h4>
-            Stock Name
-          </h4>
-
-          <p>
-            ${stockName}
-          </p>
-
+          <h4>Stock Name</h4>
+          <p>${safeText(data.stockName)}</p>
         </div>
 
         <div class="result-item">
-
-          <h4>
-            Timeframe
-          </h4>
-
-          <p>
-            ${timeframe}
-          </p>
-
+          <h4>Timeframe</h4>
+          <p>${safeText(data.timeframe)}</p>
         </div>
 
         <div class="result-item">
-
-          <h4>
-            Trade Verdict
-          </h4>
-
-          <p>
-            ${tradeVerdict}
-          </p>
-
+          <h4>Trade Verdict</h4>
+          <p>${safeText(data.tradeVerdict)}</p>
         </div>
 
         <div class="result-item">
-
-          <h4>
-            Trade Health
-          </h4>
-
-          <p>
-            ${tradeHealth}
-          </p>
-
+          <h4>Trade Health</h4>
+          <p>${safeText(data.tradeHealth)}</p>
         </div>
 
         <div class="result-item">
-
-          <h4>
-            P/L %
-          </h4>
-
-          <p>
-            ${pnlPercent.toFixed(2)}%
-          </p>
-
-        </div>
-
-        <div class="result-item">
-
-          <h4>
-            Priority
-          </h4>
-
-          <p>
-            ${priority}
-          </p>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="card">
-
-      <div class="section-header">
-
-        <h3>
-          Trade Management Plan
-        </h3>
-
-      </div>
-
-      <div class="result-grid">
-
-        <div class="result-item">
-
-          <h4>
-            Suggested Stop Loss
-          </h4>
-
-          <p>
-            ${suggestedSL}
-          </p>
-
-        </div>
-
-        <div class="result-item">
-
-          <h4>
-            Suggested Target
-          </h4>
-
-          <p>
-            ${suggestedTarget}
-          </p>
-
+          <h4>P/L %</h4>
+          <p>${safePercent(data.pnlPercent)}</p>
         </div>
 
       </div>
@@ -1378,10 +1053,10 @@ function renderTradeResults(data) {
 
       <ul>
 
-        ${tradeReasons
+        ${safeArray(data.tradeReasons)
           .map(
             item =>
-              `<li>${item}</li>`
+              `<li>${safeText(item)}</li>`
           )
           .join("")}
 
