@@ -1,5 +1,5 @@
 // =========================
-// SETUP ENGINE
+// CALCULATE SETUP SCORES
 // =========================
 
 function calculateSetupScores(data) {
@@ -19,221 +19,193 @@ function calculateSetupScores(data) {
   // =========================
 
   let cbScore = 0;
-
   let pcScore = 0;
-
   let rbScore = 0;
 
   // =========================
-  // EMA STRUCTURE
+  // TREND STRUCTURE
   // =========================
 
-  // STRONG BULLISH TREND
-
-  if (
+  const strongTrend =
 
     ltp > ema20 &&
-    ema20 > ema50
+    ema20 > ema50;
 
-  ) {
+  const moderateTrend =
 
-    cbScore += 35;
-
-    pcScore += 35;
-
-    rbScore += 20;
-
-  }
-
-  // MODERATE TREND
-
-  else if (
-
-    ltp > ema20
-
-  ) {
-
-    cbScore += 20;
-
-    pcScore += 25;
-
-    rbScore += 15;
-
-  }
-
-  // WEAK TREND
-
-  else {
-
-    cbScore += 5;
-
-    pcScore += 5;
-
-    rbScore += 10;
-
-  }
+    ltp > ema20;
 
   // =========================
-  // RSI ANALYSIS
+  // RSI STRUCTURE
   // =========================
 
-  // STRONG MOMENTUM
+  const bullishRSI =
 
-  if (
+    rsi >= 55 &&
+    rsi <= 75;
+
+  const strongRSI =
 
     rsi >= 60 &&
-    rsi <= 75
+    rsi <= 72;
 
-  ) {
+  const weakRSI =
+    rsi < 45;
 
-    cbScore += 30;
-
-    pcScore += 25;
-
-    rbScore += 20;
-
-  }
-
-  // MODERATE MOMENTUM
-
-  else if (
-
-    rsi >= 50
-
-  ) {
-
-    cbScore += 15;
-
-    pcScore += 20;
-
-    rbScore += 15;
-
-  }
-
-  // OVERBOUGHT
-
-  else if (
-
-    rsi > 75
-
-  ) {
-
-    cbScore += 10;
-
-    pcScore += 5;
-
-    rbScore += 5;
-
-  }
-
-  // WEAK MOMENTUM
-
-  else {
-
-    cbScore += 0;
-
-    pcScore += 5;
-
-    rbScore += 10;
-
-  }
+  const overExtendedRSI =
+    rsi > 78;
 
   // =========================
-  // EMA DISTANCE ANALYSIS
-  // =========================
-
-  const distanceFromEMA20 =
-
-    (
-      (ltp - ema20) / ema20
-    ) * 100;
-
   // CONTINUATION BREAKOUT
+  // =========================
 
-  if (
+  if (strongTrend)
+    cbScore += 40;
 
-    distanceFromEMA20 >= 2 &&
-    distanceFromEMA20 <= 6
-
-  ) {
-
+  if (strongRSI)
     cbScore += 30;
 
+  if (
+    ltp > ema20 &&
+    ltp > ema50
+  ) {
+    cbScore += 20;
   }
-
-  // PULLBACK CONTINUATION
 
   if (
-
-    distanceFromEMA20 >= -2 &&
-    distanceFromEMA20 <= 2
-
-  ) {
-
-    pcScore += 35;
-
-  }
-
-  // RANGE BREAKOUT
-
-  if (
-
-    distanceFromEMA20 >= 6
-
-  ) {
-
-    rbScore += 35;
-
-  }
-
-  // =========================
-  // TIMEFRAME ADJUSTMENTS
-  // =========================
-
-  if (timeframe === "15 Min") {
-
-    // MORE VOLATILITY
-
-    rbScore += 5;
-
-  }
-
-  else if (
     timeframe === "Daily"
   ) {
+    cbScore += 10;
+  }
 
-    // MORE RELIABLE TREND
+  // =========================
+  // PULLBACK CONTINUATION
+  // =========================
 
-    cbScore += 5;
+  if (moderateTrend)
+    pcScore += 30;
 
-    pcScore += 5;
+  if (bullishRSI)
+    pcScore += 20;
+
+  if (
+    ltp >= ema20
+  ) {
+    pcScore += 15;
+  }
+
+  if (
+    ema20 > ema50
+  ) {
+    pcScore += 20;
+  }
+
+  if (
+    timeframe === "Daily"
+  ) {
+    pcScore += 15;
+  }
+
+  // =========================
+  // REVERSAL BREAKOUT
+  // =========================
+
+  if (
+    ltp > ema20
+  ) {
+    rbScore += 25;
+  }
+
+  if (
+    rsi >= 50
+  ) {
+    rbScore += 20;
+  }
+
+  if (
+    ema20 > ema50
+  ) {
+    rbScore += 20;
+  }
+
+  if (
+    timeframe === "Daily"
+  ) {
+    rbScore += 15;
+  }
+
+  if (
+    rsi >= 60
+  ) {
+    rbScore += 20;
+  }
+
+  // =========================
+  // PENALTIES
+  // =========================
+
+  if (weakRSI) {
+
+    cbScore -= 25;
+    pcScore -= 25;
+    rbScore -= 25;
+
+  }
+
+  if (overExtendedRSI) {
+
+    cbScore -= 10;
+    pcScore -= 15;
 
   }
 
   // =========================
-  // SCORE LIMITS
+  // CLAMP SCORES
   // =========================
 
-  cbScore = Math.min(
+  cbScore = Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(cbScore)
+    )
+  );
+
+  pcScore = Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(pcScore)
+    )
+  );
+
+  rbScore = Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(rbScore)
+    )
+  );
+
+  // =========================
+  // FINAL SETUP SCORE
+  // =========================
+
+  const setupScore = Math.max(
+
     cbScore,
-    100
-  );
-
-  pcScore = Math.min(
     pcScore,
-    100
-  );
+    rbScore
 
-  rbScore = Math.min(
-    rbScore,
-    100
   );
 
   // =========================
-  // RETURN
+  // RETURN OBJECT
   // =========================
 
   return {
+
+    setupScore,
 
     cbScore,
 
